@@ -1,2 +1,2 @@
 (test
- (name train_simulation))
+ (name sample))

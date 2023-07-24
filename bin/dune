@@ -1,4 +1,4 @@
 (executable
- (public_name train_simulation)
+ (public_name sample)
  (name main)
- (libraries train_simulation))
+ (libraries sample))

@@ -1,5 +1,2 @@
 (library
- (name train_simulation)
- (libraries core)
- (preprocess
-  (pps ppx_jane)))
+ (name sample))
