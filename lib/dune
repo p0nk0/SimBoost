@@ -1,2 +1,5 @@
 (library
- (name sample))
+ (name scraper)
+ (libraries core async uri cohttp-async core_unix.command_unix)
+ (preprocess
+  (pps ppx_jane)))
