@@ -1,5 +1,6 @@
 open! Core
 open! Async
+module Stats = Stats
 
 let get () =
   let open Deferred.Let_syntax in

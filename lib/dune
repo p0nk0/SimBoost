@@ -1,5 +1,14 @@
 (library
  (name scraper)
- (libraries core async uri cohttp-async core_unix.command_unix)
+ (libraries
+  core
+  async
+  uri
+  cohttp-async
+  core_unix.command_unix
+  base
+  torch
+  stdio
+  owl-base)
  (preprocess
   (pps ppx_jane)))
