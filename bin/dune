@@ -1,4 +1,4 @@
 (executable
  (public_name sample)
  (name main)
- (libraries sample))
+ (libraries source async core_unix.command_unix))

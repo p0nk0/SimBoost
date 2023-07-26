@@ -3,6 +3,7 @@
  (libraries
   core
   async
+  async_kernel
   uri
   cohttp-async
   core_unix.command_unix
