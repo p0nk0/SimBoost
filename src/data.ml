@@ -1,9 +1,8 @@
 open! Core
+open! Async
 
-let fetch_data_as_csv ~start_date ~end_date ~name =
-  ignore start_date;
-  ignore end_date;
-  ignore name
+let fetch_data_as_array ~stock_data =
+  let _dates = Array.create in
+  let _adj_close_prices = Array.create in
+  ignore stock_data
 ;;
-
-let fetch_data_as_array () = ()
