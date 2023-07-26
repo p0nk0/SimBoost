@@ -8,6 +8,7 @@
   core_unix.command_unix
   base
   torch
+  torch_core
   stdio
   owl-base)
  (preprocess
