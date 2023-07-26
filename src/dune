@@ -1,0 +1,13 @@
+(library
+ (name source)
+ (libraries
+  core
+  async
+  uri
+  cohttp-async
+  core_unix.command_unix
+  base
+  stdio
+  owl-base)
+ (preprocess
+  (pps ppx_jane)))

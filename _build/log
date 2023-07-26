@@ -1,9 +1,9 @@
-# dune build
+# dune exec ./bin/main.exe -- shuffle
 # OCAMLPARAM: unset
 # Shared cache: disabled
 # Workspace root: /usr/local/home/jsipuser/stock-price-predictor
 # Auto-detected concurrency: 2
-$ /usr/local/home/jsipuser/.opam/4.14.1/bin/ocamlc.opt -config > /tmp/dune_2a4adc_output
+$ /usr/local/home/jsipuser/.opam/4.14.1/bin/ocamlc.opt -config > /tmp/dune_b23c58_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
