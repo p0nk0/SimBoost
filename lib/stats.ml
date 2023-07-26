@@ -8,6 +8,8 @@ let shuffle () =
   return ()
 ;;
 
+let _blah = ()
+
 let command =
   Command.async
     ~summary:"Practice getting a random element"
