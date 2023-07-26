@@ -1,4 +1,0 @@
-(lang dune 3.8)
-(name stock-price-predictor)
-(sections (lib .) (bin ../../bin) (doc ../../doc/stock-price-predictor))
-(files (lib (META dune-package opam)) (bin (sample)) (doc (README.md)))
