@@ -6,21 +6,15 @@ module Server = Cohttp_async.Server
 let create_plot () = ()
 let draw_UI () = ()
 
-(* let test_csv = let%bind result = Scraper.get ~start_date:"2012-01-01"
-   ~end_date:"2013-12-31" ~stock:"AAPL" in result ;; *)
-
+(* url format example: ../aapl/2012-01-01/2013-12-31 *)
 let handler ~body:_ _sock req =
   let uri = Cohttp.Request.uri req in
   print_s
     (let uri = Uri.to_string uri in
      [%message "Received a request!" (uri : string)]);
-  match Uri.path uri with
-  | "/test" ->
-    let response =
-      Uri.get_query_param uri "hello"
-      |> Option.map ~f:(fun v -> "hello: " ^ v)
-      |> Option.value ~default:"No param hello suplied"
-    in
+  match Uri.path uri |> String.split ~on:'/' with
+  | [ "stock"; stock; start_date; end_date ] ->
+    let%bind response = Scraper.get ~start_date ~end_date ~stock in
     let response = "\"" ^ response ^ "\"" in
     print_s [%message "Attempting to respond with" (response : string)];
     let header = Cohttp.Header.init_with "Access-Control-Allow-Origin" "*" in

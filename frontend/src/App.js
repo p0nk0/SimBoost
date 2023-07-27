@@ -5,7 +5,7 @@ import './App.css';
 function App() {
   let [response, setResponse] = useState('no response yet!');
   useEffect(function () {
-    fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/test?hello=juasoij")
+    fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/aapl/2020-01-01/2013-12-31")
       .then((response) => {
         return response.json();
       }).catch((error) => {

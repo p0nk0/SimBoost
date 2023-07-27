@@ -1,4 +1,4 @@
 (executable
  (public_name sample)
  (name main)
- (libraries source scraper async core_unix.command_unix))
+ (libraries interface source scraper async core_unix.command_unix))

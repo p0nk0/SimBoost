@@ -1,5 +1,5 @@
 (library
- (name source)
+ (name interface)
  (libraries
   scraper
   core
