@@ -1,6 +1,7 @@
 open! Core
 open! Async
 
-(* given start/end dates, stock name; returns (date array, adj. close
-   array) *)
-val fetch_data_as_array : stock_data:string -> unit
+(* specifically for monte carlo simulation for stock prices*)
+val fetch_data_as_array
+  :  retrieved_stock_data:string
+  -> string list * string list

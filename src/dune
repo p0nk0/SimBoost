@@ -8,7 +8,6 @@
   core_unix.command_unix
   base
   stdio
-  owl-base
-  scraper)
+  owl-base)
  (preprocess
   (pps ppx_jane)))

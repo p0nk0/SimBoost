@@ -2,10 +2,11 @@ open! Core
 open! Async
 module Stats = Stats
 
-val get
+(*Perform all the simulations*)
+val main
   :  start_date:string
   -> end_date:string
   -> stock:string
-  -> string Deferred.t
+  -> unit Deferred.t
 
 val command : Command.t

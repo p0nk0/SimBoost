@@ -23,17 +23,12 @@ let get ~start_date ~end_date ~stock =
   return body
 ;;
 
-let main () =
-  let%bind stock_data =
-    get ~start_date:"2000-01-01" ~end_date:"2001-01-01" ~stock:"AAPL"
-  in
-  let potential_data = String.split_lines stock_data in
-  match potential_data with
-  | [] -> return ()
-  | headers :: actual_data ->
-    print_s [%message (headers : string)];
-    print_s [%message (actual_data : string list)];
-    return ()
+(*Error handling for appropriate stock name and beginning / ending dates*)
+let main ~start_date ~end_date ~stock =
+  let%bind stock_data = get ~start_date ~end_date ~stock in
+  let _ = Source.Data.fetch_data_as_array ~retrieved_stock_data:stock_data in
+  ();
+  return ()
 ;;
 
 let command =
@@ -42,8 +37,8 @@ let command =
     (let%map_open.Command () = return () in
      fun () ->
        let%bind _data =
-         get ~start_date:"2000-01-01" ~end_date:"2001-01-01" ~stock:"AAPL"
+         main ~start_date:"2000-01-01" ~end_date:"2001-01-01" ~stock:"AAPL"
        in
-       main ())
+       return ())
 ;;
 (* let%bind response = Cohttp_async.Client.get uri in () *)
