@@ -23,7 +23,8 @@ let get ~start_date ~end_date ~stock =
   return body
 ;;
 
-(*Error handling for appropriate stock name and beginning / ending dates*)
+(*Error handling for appropriate stock name and beginning / ending dates -->
+  and then calling and choosing the appropriate models from here*)
 let main ~start_date ~end_date ~stock =
   let%bind stock_data = get ~start_date ~end_date ~stock in
   let _ = Source.Data.fetch_data_as_array ~retrieved_stock_data:stock_data in
