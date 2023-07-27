@@ -1,6 +1,7 @@
 (library
  (name source)
  (libraries
+  scraper
   core
   async
   async_kernel

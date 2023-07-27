@@ -5,16 +5,26 @@ module Server = Cohttp_async.Server
 
 let create_plot () = ()
 let draw_UI () = ()
-(* let test_csv = "wdajoiawdjiowjadiojidawoijjiodwaoij" *)
+
+(* let test_csv = let%bind result = Scraper.get ~start_date:"2012-01-01"
+   ~end_date:"2013-12-31" ~stock:"AAPL" in result ;; *)
 
 let handler ~body:_ _sock req =
   let uri = Cohttp.Request.uri req in
+  print_s
+    (let uri = Uri.to_string uri in
+     [%message "Received a request!" (uri : string)]);
   match Uri.path uri with
   | "/test" ->
-    Uri.get_query_param uri "hello"
-    |> Option.map ~f:(fun v -> "hello: " ^ v)
-    |> Option.value ~default:"No param hello suplied"
-    |> Server.respond_string
+    let response =
+      Uri.get_query_param uri "hello"
+      |> Option.map ~f:(fun v -> "hello: " ^ v)
+      |> Option.value ~default:"No param hello suplied"
+    in
+    let response = "\"" ^ response ^ "\"" in
+    print_s [%message "Attempting to respond with" (response : string)];
+    let header = Cohttp.Header.init_with "Access-Control-Allow-Origin" "*" in
+    Server.respond_string ~headers:header response
   | _ -> Server.respond_string ~status:`Not_found "Route not found"
 ;;
 
@@ -36,7 +46,7 @@ let command =
     (let%map_open.Command port =
        flag
          "port"
-         (optional_with_default 8080 int)
+         (optional_with_default 8181 int)
          ~doc:"port on which to serve"
      in
      fun () -> start_server port ())
