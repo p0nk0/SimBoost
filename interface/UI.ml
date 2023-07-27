@@ -12,14 +12,19 @@ let handler ~body:_ _sock req =
   print_s
     (let uri = Uri.to_string uri in
      [%message "Received a request!" (uri : string)]);
+  let header = Cohttp.Header.init_with "Access-Control-Allow-Origin" "*" in
+  let request = Uri.path uri |> String.split ~on:'/' in
+  print_s [%message (request : string list)];
   match Uri.path uri |> String.split ~on:'/' with
-  | [ "stock"; stock; start_date; end_date ] ->
+  | [ _; "stock"; stock; start_date; end_date ] ->
     let%bind response = Scraper.get ~start_date ~end_date ~stock in
     let response = "\"" ^ response ^ "\"" in
-    print_s [%message "Attempting to respond with" (response : string)];
-    let header = Cohttp.Header.init_with "Access-Control-Allow-Origin" "*" in
     Server.respond_string ~headers:header response
-  | _ -> Server.respond_string ~status:`Not_found "Route not found"
+  | _ ->
+    Server.respond_string
+      ~headers:header
+      ~status:`Not_found
+      "\" Route not found \""
 ;;
 
 let start_server port () =
