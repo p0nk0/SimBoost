@@ -2,7 +2,9 @@ open! Core
 open! Async
 
 let command =
-  Command.group ~summary:"A cool tool" [ "server", Source.UI.command ]
+  Command.group
+    ~summary:"Stock dashboard"
+    [ "server", Source.UI.command; "scraper", Scraper.command ]
 ;;
 
 let () = Command_unix.run command
