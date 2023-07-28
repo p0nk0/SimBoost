@@ -1,16 +1,18 @@
-
 import { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
+  console.log("HELLO");
   let [response, setResponse] = useState('no response yet!');
   useEffect(function () {
-    fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/aapl/2020-01-01/2013-12-31")
+    fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/aapl/2012-01-01/2013-12-31")
       .then((response) => {
+        console.log(response);
         return response.json();
       }).catch((error) => {
         console.log(error)
       }).then((parsed_response) => {
+        console.log(parsed_response);
         setResponse(JSON.stringify(parsed_response));
       });
   }, [])
@@ -38,4 +40,5 @@ function App() {
 }
 
 
-export default App;
+
+export default App();
