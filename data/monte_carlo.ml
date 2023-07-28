@@ -3,6 +3,16 @@ open! Owl_base
 
 let num_trading_days = ref 252.
 
+let _random_samples ~number_of_pred_days ~annualized_growth_rate ~std_dev =
+  let mu = annualized_growth_rate /. number_of_pred_days in
+  let sigma = std_dev /. sqrt number_of_pred_days in
+  let rand_numbers =
+    Array.create ~len:(int_of_float number_of_pred_days) 0.0
+  in
+  Array.map rand_numbers ~f:(fun _curr_position ->
+    Owl_base_stats_dist_gaussian.gaussian_rvs ~mu ~sigma)
+;;
+
 (*Think of contraints on the dates for the data*)
 let total_growth_percentage ~stock_prices : float option =
   if Array.length stock_prices < 2
