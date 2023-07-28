@@ -17,8 +17,11 @@ let handler ~body:_ _sock req =
   print_s [%message (request : string list)];
   match Uri.path uri |> String.split ~on:'/' with
   | [ _; "stock"; stock; start_date; end_date ] ->
-    let%bind response = Scraper.get ~start_date ~end_date ~stock in
-    let response = "\"" ^ response ^ "\"" in
+    let%bind _response = Scraper.get ~start_date ~end_date ~stock in
+    let response =
+      Jsonaf.Export.jsonaf_of_string _response |> Jsonaf.to_string
+    in
+    print_s [%message (response : string)];
     Server.respond_string ~headers:header response
   | _ ->
     Server.respond_string
