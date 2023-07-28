@@ -8,10 +8,7 @@ let fetch_data_as_array ~retrieved_stock_data =
   let potential_data = String.split_lines retrieved_stock_data in
   match potential_data with
   | [] -> Array.create ~len:0 "", Array.create ~len:0 0.0
-  | headers :: actual_data ->
-    let headers = String.split headers ~on:',' in
-    print_s [%message (headers : string list)];
-    print_s [%message (actual_data : string list)];
+  | _headers :: actual_data ->
     let dates, stock_prices =
       List.fold
         actual_data
@@ -28,7 +25,5 @@ let fetch_data_as_array ~retrieved_stock_data =
             , Array.append prices (Array.of_list price) )
           | [] -> dates, prices)
     in
-    print_s [%message (dates : string array)];
-    print_s [%message (stock_prices : float array)];
     dates, stock_prices
 ;;

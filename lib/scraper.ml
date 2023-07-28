@@ -27,9 +27,17 @@ let get ~start_date ~end_date ~stock =
   and then calling and choosing the appropriate models from here*)
 let main ~start_date ~end_date ~stock =
   let%bind stock_data = get ~start_date ~end_date ~stock in
-  let _ = Source.Data.fetch_data_as_array ~retrieved_stock_data:stock_data in
-  ();
-  return ()
+  let dates, stock_prices =
+    Source.Data.fetch_data_as_array ~retrieved_stock_data:stock_data
+  in
+  let predicted_prices =
+    Source.Monte_carlo.main
+      ~historical_dates:dates
+      ~historical_stock_prices:stock_prices
+  in
+  match predicted_prices with
+  | None -> return ()
+  | Some _predicted_prices -> return ()
 ;;
 
 let command =
@@ -38,7 +46,7 @@ let command =
     (let%map_open.Command () = return () in
      fun () ->
        let%bind _data =
-         main ~start_date:"2000-01-01" ~end_date:"2001-01-01" ~stock:"AAPL"
+         main ~start_date:"2009-01-01" ~end_date:"2019-01-01" ~stock:"AAPL"
        in
        return ())
 ;;

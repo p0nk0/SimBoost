@@ -3,16 +3,6 @@ open! Owl_base
 
 let num_trading_days = ref 252.
 
-let _random_samples ~number_of_pred_days ~annualized_growth_rate ~std_dev =
-  let mu = annualized_growth_rate /. number_of_pred_days in
-  let sigma = std_dev /. sqrt number_of_pred_days in
-  let rand_numbers =
-    Array.create ~len:(int_of_float number_of_pred_days) 0.0
-  in
-  Array.map rand_numbers ~f:(fun _curr_position ->
-    Owl_base_stats_dist_gaussian.gaussian_rvs ~mu ~sigma)
-;;
-
 (*Think of contraints on the dates for the data*)
 let total_growth_percentage ~stock_prices : float option =
   if Array.length stock_prices < 2
@@ -55,29 +45,67 @@ let calc_pct_changes ~historical_stock_prices =
     percent_change_array)
 ;;
 
-let calc_std ~prices = Owl_base.Stats.std prices
+let calc_std ~prices =
+  let mean = Owl_base.Stats.mean prices in
+  Owl_base.Stats.std ~mean prices
+;;
+
+let random_samples ~number_of_pred_days ~annualized_growth_rate ~std_dev =
+  let mu = annualized_growth_rate /. number_of_pred_days in
+  let sigma = std_dev /. sqrt number_of_pred_days in
+  let rand_numbers =
+    Array.create ~len:(int_of_float number_of_pred_days) 0.0
+  in
+  Array.map rand_numbers ~f:(fun _curr_position ->
+    1. +. Owl_base_stats_dist_gaussian.gaussian_rvs ~mu ~sigma)
+;;
+
+let get_predicted_prices
+  ~(random_percentages : float array)
+  ~(starting_price : float)
+  =
+  Array.fold
+    random_percentages
+    ~init:[| starting_price |]
+    ~f:(fun predictions daily_return_percentage ->
+    let last_elt = Array.last predictions in
+    let next_value = last_elt *. daily_return_percentage in
+    Array.append predictions (Array.of_list [ next_value ]))
+;;
 
 let main ~historical_dates ~historical_stock_prices =
   let open Option.Let_syntax in
-  let time_elapsed = Array.length historical_dates in
+  let last_date = Array.last historical_dates in
+  let last_date = Date.of_string last_date in
+  let first_date = Array.get historical_dates 0 in
+  let first_date = Date.of_string first_date in
+  let time_elapsed = Date.diff last_date first_date in
+  print_s [%message (time_elapsed : int)];
   let%bind total_growth =
     total_growth_percentage ~stock_prices:historical_stock_prices
   in
   let num_yrs_elapsed = float_of_int time_elapsed /. 365. in
-  let _annualized_growth_rate =
+  let annualized_growth_rate =
     calc_annualized_growth_percentage ~total_growth ~num_yrs_elapsed
   in
   let pct_changes_stock = calc_pct_changes ~historical_stock_prices in
   if Array.is_empty pct_changes_stock
-  then Some false
+  then None
   else (
-    let std = calc_std ~prices:historical_stock_prices in
-    let _std = std *. sqrt !num_trading_days in
-    ();
-    Some true)
+    let std = calc_std ~prices:pct_changes_stock in
+    let std = std *. sqrt !num_trading_days in
+    let daily_return_percentage =
+      random_samples
+        ~number_of_pred_days:!num_trading_days
+        ~annualized_growth_rate
+        ~std_dev:std
+    in
+    print_s [%message (daily_return_percentage : float array)];
+    let predictions =
+      get_predicted_prices
+        ~random_percentages:daily_return_percentage
+        ~starting_price:(Array.last historical_stock_prices)
+    in
+    print_s [%message (predictions : float array)];
+    Some predictions)
 ;;
-
-(*Need to make the random walk function*)
-
-(* let calc_annualized_growth_percentage = () let calc_scaled_std = () let
-   gen_rand_vals = () let accuracy = () *)

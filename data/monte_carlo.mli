@@ -6,4 +6,4 @@ open! Owl_base
 val main
   :  historical_dates:string array
   -> historical_stock_prices:float array
-  -> bool option
+  -> float array option
