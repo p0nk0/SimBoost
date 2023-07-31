@@ -73,14 +73,14 @@ let get_predicted_prices
     Array.append predictions (Array.of_list [ next_value ]))
 ;;
 
-let main ~historical_dates ~historical_stock_prices =
+let main ~historical_dates ~historical_stock_prices ~pred_dates =
   let open Option.Let_syntax in
   let last_date = Array.last historical_dates in
   let last_date = Date.of_string last_date in
   let first_date = Array.get historical_dates 0 in
   let first_date = Date.of_string first_date in
   let time_elapsed = Date.diff last_date first_date in
-  print_s [%message (time_elapsed : int)];
+  let () = num_trading_days := float_of_int (Array.length pred_dates) in
   let%bind total_growth =
     total_growth_percentage ~stock_prices:historical_stock_prices
   in
@@ -100,7 +100,6 @@ let main ~historical_dates ~historical_stock_prices =
         ~annualized_growth_rate
         ~std_dev:std
     in
-    print_s [%message (daily_return_percentage : float array)];
     let predictions =
       get_predicted_prices
         ~random_percentages:daily_return_percentage
