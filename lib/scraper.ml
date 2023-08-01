@@ -2,6 +2,8 @@ open! Core
 open! Async
 module Stats = Stats
 
+type models = Monte_Carlo
+
 let get ~start_date ~end_date ~stock =
   let path = "/api/v3/datasets/WIKI/" ^ stock ^ "/data.csv" in
   let uri =
@@ -25,19 +27,29 @@ let get ~start_date ~end_date ~stock =
 
 (*Error handling for appropriate stock name and beginning / ending dates -->
   and then calling and choosing the appropriate models from here*)
-let main ~start_date ~end_date ~stock =
-  let%bind stock_data = get ~start_date ~end_date ~stock in
-  let dates, stock_prices =
-    Source.Data.fetch_data_as_array ~retrieved_stock_data:stock_data
-  in
-  let predicted_prices =
-    Source.Monte_carlo.main
-      ~historical_dates:dates
-      ~historical_stock_prices:stock_prices
-  in
-  match predicted_prices with
-  | None -> return ()
-  | Some _predicted_prices -> return ()
+let main ~start_date ~end_date_historical ~end_date_pred ~stock ~model_type =
+  match model_type with
+  | Monte_Carlo ->
+    let%bind historical_stock_data =
+      get ~start_date ~end_date:end_date_historical ~stock
+    in
+    let hist_dates, hist_stock_prices =
+      Source.Data.fetch_data_as_array
+        ~retrieved_stock_data:historical_stock_data
+    in
+    let%bind pred_stock_data =
+      get ~start_date:end_date_historical ~end_date:end_date_pred ~stock
+    in
+    let pred_dates, _pred_stock_prices =
+      Source.Data.fetch_data_as_array ~retrieved_stock_data:pred_stock_data
+    in
+    let predicted_prices =
+      Source.Monte_carlo.main
+        ~historical_dates:hist_dates
+        ~historical_stock_prices:hist_stock_prices
+        ~pred_dates
+    in
+    return predicted_prices
 ;;
 
 let command =
@@ -46,7 +58,12 @@ let command =
     (let%map_open.Command () = return () in
      fun () ->
        let%bind _data =
-         main ~start_date:"2009-01-01" ~end_date:"2019-01-01" ~stock:"AAPL"
+         main
+           ~start_date:"2011-03-02"
+           ~end_date_historical:"2011-03-15"
+           ~end_date_pred:"2011-04-30"
+           ~stock:"MSFT"
+           ~model_type:Monte_Carlo
        in
        return ())
 ;;

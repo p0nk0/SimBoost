@@ -2,12 +2,16 @@ open! Core
 open! Async
 module Stats = Stats
 
+type models
+
 (*Perform all the simulations*)
 val main
   :  start_date:string
-  -> end_date:string
+  -> end_date_historical:string
+  -> end_date_pred:string
   -> stock:string
-  -> unit Deferred.t
+  -> model_type:models
+  -> float array option Deferred.t
 
 val get
   :  start_date:string
