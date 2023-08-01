@@ -150,7 +150,8 @@ let run_simulation
       Array.append acc [| curr_predictions |])
   in
   let sum_arrays = sum_arrays ~list_of_arrays:predictions_array in
-  sum_arrays
+  let avg_array = avg_array ~array:sum_arrays ~num_simulations:10 in
+  print_s [%message (avg_array : float array)]
 ;;
 
 let main ~historical_dates ~historical_stock_prices ~pred_dates =
