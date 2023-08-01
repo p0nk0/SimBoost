@@ -73,7 +73,88 @@ let get_predicted_prices
     Array.append predictions (Array.of_list [ next_value ]))
 ;;
 
+let _running_one_simulation
+  ~pct_changes_stock
+  ~annualized_growth_rate
+  ~historical_stock_prices
+  =
+  let std = calc_std ~prices:pct_changes_stock in
+  let std = std *. sqrt !num_trading_days in
+  let daily_return_percentage =
+    random_samples
+      ~number_of_pred_days:!num_trading_days
+      ~annualized_growth_rate
+      ~std_dev:std
+  in
+  let predictions =
+    get_predicted_prices
+      ~random_percentages:daily_return_percentage
+      ~starting_price:(Array.last historical_stock_prices)
+  in
+  predictions
+;;
+
+let get_one_pred_set
+  ~pct_changes_stock
+  ~annualized_growth_rate
+  ~historical_stock_prices
+  =
+  let std = calc_std ~prices:pct_changes_stock in
+  let std = std *. sqrt !num_trading_days in
+  let daily_return_percentage =
+    random_samples
+      ~number_of_pred_days:!num_trading_days
+      ~annualized_growth_rate
+      ~std_dev:std
+  in
+  let predictions =
+    get_predicted_prices
+      ~random_percentages:daily_return_percentage
+      ~starting_price:(Array.last historical_stock_prices)
+  in
+  predictions
+;;
+
+let sum_arrays ~(list_of_arrays : float array array) =
+  let len_one_array = Array.length (Array.get list_of_arrays 0) in
+  let sum_array = Array.create ~len:len_one_array 0.0 in
+  Array.iter list_of_arrays ~f:(fun curr_pred_array ->
+    Array.iteri curr_pred_array ~f:(fun idx_elt curr_pred ->
+      let curr_sum = Array.get sum_array idx_elt in
+      let new_sum = curr_sum +. curr_pred in
+      Array.set sum_array idx_elt new_sum))
+;;
+
+let avg_array ~array ~num_simulations =
+  let num_simulations = float_of_int num_simulations in
+  Array.map array ~f:(fun curr_elt -> curr_elt /. num_simulations)
+;;
+
+let run_simulation
+  ~pct_changes_stock
+  ~annualized_growth_rate
+  ~historical_stock_prices
+  =
+  let curr_array = Array.create ~len:10 0 in
+  let predictions_array =
+    Array.fold
+      curr_array
+      ~init:(Array.create ~len:10 [| 0.0 |])
+      ~f:(fun acc _curr_elem ->
+      let curr_predictions =
+        get_one_pred_set
+          ~pct_changes_stock
+          ~annualized_growth_rate
+          ~historical_stock_prices
+      in
+      Array.append acc [| curr_predictions |])
+  in
+  let sum_arrays = sum_arrays ~list_of_arrays:predictions_array in
+  sum_arrays
+;;
+
 let main ~historical_dates ~historical_stock_prices ~pred_dates =
+  Owl_base_stats_prng.self_init ();
   let open Option.Let_syntax in
   let last_date = Array.last historical_dates in
   let last_date = Date.of_string last_date in
@@ -92,18 +173,11 @@ let main ~historical_dates ~historical_stock_prices ~pred_dates =
   if Array.is_empty pct_changes_stock
   then None
   else (
-    let std = calc_std ~prices:pct_changes_stock in
-    let std = std *. sqrt !num_trading_days in
-    let daily_return_percentage =
-      random_samples
-        ~number_of_pred_days:!num_trading_days
-        ~annualized_growth_rate
-        ~std_dev:std
-    in
     let predictions =
-      get_predicted_prices
-        ~random_percentages:daily_return_percentage
-        ~starting_price:(Array.last historical_stock_prices)
+      get_one_pred_set
+        ~pct_changes_stock
+        ~annualized_growth_rate
+        ~historical_stock_prices
     in
     print_s [%message (predictions : float array)];
     Some predictions)

@@ -12,7 +12,7 @@ let get ~start_date ~end_date ~stock =
       ~host:"data.nasdaq.com"
       ~path
       ~query:
-        [ "column_index", [ "11" ]
+        [ "column_index", [ "4" ]
         ; "start_date", [ start_date ]
         ; "end_date", [ end_date ]
         ; "order", [ "asc" ]
@@ -40,7 +40,7 @@ let main ~start_date ~end_date_historical ~end_date_pred ~stock ~model_type =
     let%bind pred_stock_data =
       get ~start_date:end_date_historical ~end_date:end_date_pred ~stock
     in
-    let pred_dates, _pred_stock_prices =
+    let pred_dates, pred_stock_prices =
       Source.Data.fetch_data_as_array ~retrieved_stock_data:pred_stock_data
     in
     let predicted_prices =
@@ -49,6 +49,7 @@ let main ~start_date ~end_date_historical ~end_date_pred ~stock ~model_type =
         ~historical_stock_prices:hist_stock_prices
         ~pred_dates
     in
+    print_s [%message (pred_stock_prices : float array)];
     return predicted_prices
 ;;
 
@@ -59,10 +60,10 @@ let command =
      fun () ->
        let%bind _data =
          main
-           ~start_date:"2011-03-02"
-           ~end_date_historical:"2011-03-15"
-           ~end_date_pred:"2011-04-30"
-           ~stock:"MSFT"
+           ~start_date:"2006-08-01"
+           ~end_date_historical:"2008-10-01"
+           ~end_date_pred:"2009-11-10"
+           ~stock:"GT"
            ~model_type:Monte_Carlo
        in
        return ())
