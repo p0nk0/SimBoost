@@ -1,7 +1,18 @@
 (* this file will be renamed later *)
 open! Core
 open Async
+open! Jsonaf.Export
 module Server = Cohttp_async.Server
+
+module Stock_data = struct
+  type t =
+    { dates : string array
+    ; stocks : float array
+    }
+  [@@deriving sexp, jsonaf]
+
+  let of_arrays (dates, stocks) = { dates; stocks }
+end
 
 let create_plot () = ()
 let draw_UI () = ()
@@ -19,7 +30,10 @@ let handler ~body:_ _sock req =
   | [ _; "stock"; stock; start_date; end_date ] ->
     let%bind _response = Scraper.get ~start_date ~end_date ~stock in
     let response =
-      Jsonaf.Export.jsonaf_of_string _response |> Jsonaf.to_string
+      Source.Data.fetch_data_as_array ~retrieved_stock_data:_response
+      |> Stock_data.of_arrays
+      |> Stock_data.jsonaf_of_t
+      |> Jsonaf.to_string
     in
     print_s [%message (response : string)];
     Server.respond_string ~headers:header response

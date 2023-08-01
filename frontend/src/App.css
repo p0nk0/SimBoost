@@ -28,6 +28,15 @@
   color: #61dafb;
 }
 
+.Row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center
+}
+
+
+
 /* @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

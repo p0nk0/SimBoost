@@ -2,6 +2,7 @@
  (name interface)
  (libraries
   scraper
+  source
   core
   async
   async_kernel
@@ -13,4 +14,4 @@
   owl-base
   jsonaf)
  (preprocess
-  (pps ppx_jane)))
+  (pps ppx_jane ppx_jsonaf_conv)))
