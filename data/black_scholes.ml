@@ -31,7 +31,7 @@ let time_till_expiration ~start_date ~end_date =
   Date.diff end_date start_date
 ;;
 
-let calculate_d1
+let calculate_d1_call
   ~strike_price
   ~stock_price
   ~interest_rate
@@ -44,7 +44,7 @@ let calculate_d1
       /. (std_log_returns *. sqrt time_till_expiry))
 ;;
 
-let calculate_d2
+let calculate_d1_put
   ~strike_price
   ~stock_price
   ~interest_rate
@@ -56,3 +56,12 @@ let calculate_d2
       *. time_till_expiry
       /. (std_log_returns *. sqrt time_till_expiry))
 ;;
+
+let calculate_d2 ~d1 ~std_log_returns ~time_till_expiry =
+  d1 -. (std_log_returns *. sqrt time_till_expiry)
+;;
+
+(* let get_normal_value ~input = 
+  Owl_base_stats_dist_uniform.uniform_rvs ~a:0 ~b:1 input
+
+;; *)
