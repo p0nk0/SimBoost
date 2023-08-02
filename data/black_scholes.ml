@@ -20,3 +20,39 @@ let calc_log_returns ~prices =
   in
   log_returns
 ;;
+
+let std_dev_log_returns ~prices =
+  Owl_base_stats.std (calc_log_returns ~prices)
+;;
+
+let time_till_expiration ~start_date ~end_date =
+  let start_date = Date.of_string start_date in
+  let end_date = Date.of_string end_date in
+  Date.diff end_date start_date
+;;
+
+let calculate_d1
+  ~strike_price
+  ~stock_price
+  ~interest_rate
+  ~std_log_returns
+  ~time_till_expiry
+  =
+  log (stock_price /. strike_price)
+  +. ((interest_rate +. ((std_log_returns ** 2.) /. 2.))
+      *. time_till_expiry
+      /. (std_log_returns *. sqrt time_till_expiry))
+;;
+
+let calculate_d2
+  ~strike_price
+  ~stock_price
+  ~interest_rate
+  ~std_log_returns
+  ~time_till_expiry
+  =
+  log (stock_price /. strike_price)
+  +. ((interest_rate -. ((std_log_returns ** 2.) /. 2.))
+      *. time_till_expiry
+      /. (std_log_returns *. sqrt time_till_expiry))
+;;
