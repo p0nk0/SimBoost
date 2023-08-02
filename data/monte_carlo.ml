@@ -118,11 +118,13 @@ let get_one_pred_set
 let sum_arrays ~(list_of_arrays : float array array) =
   let len_one_array = Array.length (Array.get list_of_arrays 0) in
   let sum_array = Array.create ~len:len_one_array 0.0 in
+  print_s [%message (Array.get list_of_arrays 0 : float array)];
   Array.iter list_of_arrays ~f:(fun curr_pred_array ->
     Array.iteri curr_pred_array ~f:(fun idx_elt curr_pred ->
       let curr_sum = Array.get sum_array idx_elt in
       let new_sum = curr_sum +. curr_pred in
-      Array.set sum_array idx_elt new_sum))
+      Array.set sum_array idx_elt new_sum));
+  sum_array
 ;;
 
 let avg_array ~array ~num_simulations =
@@ -135,11 +137,11 @@ let run_simulation
   ~annualized_growth_rate
   ~historical_stock_prices
   =
-  let curr_array = Array.create ~len:10 0 in
+  let curr_array = Array.create ~len:10000 0 in
   let predictions_array =
     Array.fold
       curr_array
-      ~init:(Array.create ~len:10 [| 0.0 |])
+      ~init:(Array.create ~len:0 [| 0.0 |])
       ~f:(fun acc _curr_elem ->
       let curr_predictions =
         get_one_pred_set
@@ -150,8 +152,20 @@ let run_simulation
       Array.append acc [| curr_predictions |])
   in
   let sum_arrays = sum_arrays ~list_of_arrays:predictions_array in
-  let avg_array = avg_array ~array:sum_arrays ~num_simulations:10 in
-  print_s [%message (avg_array : float array)]
+  let avg_array = avg_array ~array:sum_arrays ~num_simulations:10000 in
+  print_s [%message (avg_array : float array)];
+  avg_array
+;;
+
+let accuracy ~preds_array ~actual_array =
+  let summation =
+    Array.foldi actual_array ~init:0.0 ~f:(fun idx acc curr_actual ->
+      let pred_value = Array.get preds_array idx in
+      let to_add = Float.abs (curr_actual -. pred_value) /. pred_value in
+      acc +. to_add)
+  in
+  let n = float_of_int (Array.length actual_array) in
+  summation /. n
 ;;
 
 let main ~historical_dates ~historical_stock_prices ~pred_dates =
@@ -174,12 +188,12 @@ let main ~historical_dates ~historical_stock_prices ~pred_dates =
   if Array.is_empty pct_changes_stock
   then None
   else (
-    let predictions =
-      get_one_pred_set
+    let avg_predictions =
+      run_simulation
         ~pct_changes_stock
         ~annualized_growth_rate
         ~historical_stock_prices
     in
-    print_s [%message (predictions : float array)];
-    Some predictions)
+    print_s [%message (avg_predictions : float array)];
+    Some avg_predictions)
 ;;
