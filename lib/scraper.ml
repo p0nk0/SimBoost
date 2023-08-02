@@ -48,6 +48,7 @@ let main ~start_date ~end_date_historical ~end_date_pred ~stock ~model_type =
         ~historical_dates:hist_dates
         ~historical_stock_prices:hist_stock_prices
         ~pred_dates
+        ~real_pred_prices:pred_stock_prices
     in
     print_s [%message (pred_stock_prices : float array)];
     return predicted_prices

@@ -168,7 +168,12 @@ let accuracy ~preds_array ~actual_array =
   summation /. n
 ;;
 
-let main ~historical_dates ~historical_stock_prices ~pred_dates =
+let main
+  ~historical_dates
+  ~historical_stock_prices
+  ~pred_dates
+  ~real_pred_prices
+  =
   Owl_base_stats_prng.self_init ();
   let open Option.Let_syntax in
   let last_date = Array.last historical_dates in
@@ -194,6 +199,9 @@ let main ~historical_dates ~historical_stock_prices ~pred_dates =
         ~annualized_growth_rate
         ~historical_stock_prices
     in
-    print_s [%message (avg_predictions : float array)];
+    let accuracy =
+      accuracy ~preds_array:avg_predictions ~actual_array:real_pred_prices
+    in
+    print_s [%message (accuracy : float)];
     Some avg_predictions)
 ;;
