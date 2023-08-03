@@ -1,7 +1,7 @@
 open! Core
 open! Owl_base
 
-let calc_volatilty ~prices =
+let _calc_volatilty ~prices =
   let variance = Owl_base_stats.var prices in
   sqrt variance
 ;;
@@ -21,17 +21,17 @@ let calc_log_returns ~prices =
   log_returns
 ;;
 
-let std_dev_log_returns ~prices =
+let _std_dev_log_returns ~prices =
   Owl_base_stats.std (calc_log_returns ~prices)
 ;;
 
-let time_till_expiration ~start_date ~end_date =
+let _time_till_expiration ~start_date ~end_date =
   let start_date = Date.of_string start_date in
   let end_date = Date.of_string end_date in
   Date.diff end_date start_date
 ;;
 
-let calculate_d1_call
+let _calculate_d1_call
   ~strike_price
   ~stock_price
   ~interest_rate
@@ -44,7 +44,7 @@ let calculate_d1_call
       /. (std_log_returns *. sqrt time_till_expiry))
 ;;
 
-let calculate_d1_put
+let _calculate_d1_put
   ~strike_price
   ~stock_price
   ~interest_rate
@@ -57,11 +57,8 @@ let calculate_d1_put
       /. (std_log_returns *. sqrt time_till_expiry))
 ;;
 
-let calculate_d2 ~d1 ~std_log_returns ~time_till_expiry =
+let _calculate_d2 ~d1 ~std_log_returns ~time_till_expiry =
   d1 -. (std_log_returns *. sqrt time_till_expiry)
 ;;
 
-(* let get_normal_value ~input = 
-  Owl_base_stats_dist_uniform.uniform_rvs ~a:0 ~b:1 input
-
-;; *)
+(* let get_normal_value ~input = Owl_types_stats_dist.gaussian_rvs ;; *)
