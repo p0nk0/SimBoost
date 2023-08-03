@@ -3,7 +3,6 @@ open! Owl_base
 
 let pi = ref 3.14159265359
 
-
 let cdf_norm ~x =
   let b1 = 0.31938152 in
   let b2 = -0.356563782 in
@@ -28,4 +27,3 @@ let cdf_norm ~x =
   if Float.( < ) x 0.0 then w := 1.0 -. !w;
   !w
 ;;
-
