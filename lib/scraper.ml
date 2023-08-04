@@ -19,7 +19,6 @@ module Black_Scholes = struct
     ; start_date : string
     ; expiration_date : string
     ; historical_date_start : string
-    ; historical_date_end : string
     }
 end
 
@@ -94,7 +93,7 @@ let main_options ~model_type =
     let%bind historical_stock_data =
       get
         ~start_date:params.historical_date_start
-        ~end_date:params.historical_date_end
+        ~end_date:params.start_date
         ~stock:params.stock
     in
     let _hist_dates, hist_stock_prices =
@@ -137,13 +136,12 @@ let command =
          }
        in
        let black_scholes_params =
-         { Black_Scholes.stock = "MSFT"
+         { Black_Scholes.stock = "TSLA"
          ; interest_rate = 0.05
-         ; strike_price = 100.5
-         ; start_date = "2006-08-01"
-         ; expiration_date = "2008-10-01"
-         ; historical_date_start = "2006-01-01"
-         ; historical_date_end = "2006-05-01"
+         ; strike_price = 20.
+         ; start_date = "2017-08-01"
+         ; expiration_date = "2018-01-01"
+         ; historical_date_start = "2010-01-01"
          }
        in
        let%bind _data =
