@@ -1,22 +1,38 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-import Button from '@mui/material/Button';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import ButtonGroup from '@mui/material/ButtonGroup';
+import { LineChart } from '@mui/x-charts/LineChart';
 
-import { LineChart } from '@mui/x-charts/LineChart'
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { cyan } from '@mui/material/colors';
 
-function MakeChart({ stocks, dates }) {
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#512da8',
+    },
+    secondary: cyan,
+  },
+});
+
+
+function MakeChart({ type, data, dates }) {
   return (
     <LineChart
       xAxis={[{
         scaleType: 'time',
-        data: dates
+        data: dates,
+        color: "ffffff"
       }]}
       series={[
         {
-          data: stocks
+          id: "Data",
+          label: type,
+          data: data,
+          color: theme.palette.primary.main
         },
       ]}
       width={500}
@@ -24,23 +40,24 @@ function MakeChart({ stocks, dates }) {
       sx={{
         '.MuiLineElement-root': {
           strokeWidth: 2,
+          stroke: theme.palette.primary.main
         },
         '.MuiMarkElement-root': {
-          scale: '0',
-        },
+          display: 'none'
+        }
       }}
     />
   )
 }
 
-
 function App() {
   let [dates, setDates] = useState([1]);
   let [stocks, setStocks] = useState([1]);
   let [stock, setStock] = useState("AAPL");
+  let [type, setType] = useState("stock");
 
   useEffect(function () {
-    fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/" + stock + "/2012-01-01/2013-12-31")
+    fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/" + type + "/" + stock + "/2012-01-01/2013-12-31")
       .then((response) => {
         return response.json();
       }).then((parsed_response) => {
@@ -53,27 +70,25 @@ function App() {
       });
   }, [stock])
 
+  const handleChange = (_, newStock) => {
+    if (newStock !== null) {
+      setStock(newStock);
+    }
+  }
+
   const buttons = [
-    <Button
-      onClick={() => {
-        setStock("AAPL")
-      }}
-      key="AAPL">AAPL</Button>,
-    <Button
-      onClick={() => {
-        setStock("MSFT")
-      }}
-      key="MSFT">MSFT</Button>,
-    <Button
-      onClick={() => {
-        setStock("AMZN")
-      }}
-      key="AMZN">AMZN</Button>,
-    <Button
-      onClick={() => {
-        setStock("TSLA")
-      }}
-      key="TSLA">TSLA</Button>
+    <ToggleButton
+      key="AAPL"
+      value="AAPL">AAPL</ToggleButton>,
+    <ToggleButton
+      key="MSFT"
+      value="MSFT">MSFT</ToggleButton>,
+    <ToggleButton
+      key="AMZN"
+      value="AMZN">AMZN</ToggleButton>,
+    <ToggleButton
+      key="TSLA"
+      value="TSLA">TSLA</ToggleButton>
   ];
 
 
@@ -82,12 +97,18 @@ function App() {
       <header className="App-header">
         <h1>STOCK DASHBOARD RAAH</h1>
         <div className="Row">
-          <ButtonGroup
-            orientation="vertical"
-          >{buttons}</ButtonGroup>
-          <MakeChart
-            dates={dates} stocks={stocks}
-          />
+          <ThemeProvider theme={theme}>
+            <ToggleButtonGroup
+              color="primary"
+              value={stock}
+              exclusive
+              orientation="vertical"
+              onChange={handleChange}
+            >{buttons}</ToggleButtonGroup>
+            <MakeChart
+              dates={dates} data={stocks} type={stock}
+            />
+          </ThemeProvider>
         </div>
       </header>
     </div >

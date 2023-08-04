@@ -17,7 +17,8 @@ end
 let create_plot () = ()
 let draw_UI () = ()
 
-(* url format example: ../aapl/2012-01-01/2013-12-31 *)
+(* url format example: ../stock/aapl/2012-01-01/2013-12-31
+   ../predict/aapl/2012-01-01/2013-12-31 [not yet implemented] *)
 let handler ~body:_ _sock req =
   let uri = Cohttp.Request.uri req in
   print_s
