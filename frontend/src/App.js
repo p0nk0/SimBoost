@@ -15,6 +15,7 @@ const theme = createTheme({
       main: '#512da8',
     },
     secondary: cyan,
+    mode: "dark"
   },
 });
 
@@ -22,11 +23,14 @@ const theme = createTheme({
 function MakeChart({ type, data, dates }) {
   return (
     <LineChart
+      width={500}
+      height={300}
+
       xAxis={[{
         scaleType: 'time',
         data: dates,
-        color: "ffffff"
       }]}
+
       series={[
         {
           id: "Data",
@@ -35,8 +39,7 @@ function MakeChart({ type, data, dates }) {
           color: theme.palette.primary.main
         },
       ]}
-      width={500}
-      height={300}
+
       sx={{
         '.MuiLineElement-root': {
           strokeWidth: 2,
@@ -47,6 +50,51 @@ function MakeChart({ type, data, dates }) {
         }
       }}
     />
+  )
+}
+
+function MakeButton({ type, value, setButton }) {
+
+  const handleChange = (_, newValue) => {
+    if (newValue !== null) {
+      setButton(newValue);
+    }
+  }
+  let buttons;
+  if (type === "stock") {
+    buttons = [
+      <ToggleButton
+        key="AAPL"
+        value="AAPL">AAPL</ToggleButton>,
+      <ToggleButton
+        key="MSFT"
+        value="MSFT">MSFT</ToggleButton>,
+      <ToggleButton
+        key="AMZN"
+        value="AMZN">AMZN</ToggleButton>,
+      <ToggleButton
+        key="TSLA"
+        value="TSLA">TSLA</ToggleButton>
+    ];
+  } else {
+    buttons = [<ToggleButton
+      key="Monte Carlo"
+      value="Monte Carlo">Monte Carlo</ToggleButton>,
+    <ToggleButton
+      key="Black-Scholes"
+      value="Black-Scholes">Black-Scholes</ToggleButton>,]
+  }
+
+
+
+  return (
+    <ToggleButtonGroup
+      color="primary"
+      value={value}
+      exclusive
+      orientation="vertical"
+      onChange={handleChange}
+    >{buttons}</ToggleButtonGroup>
   )
 }
 
@@ -70,27 +118,6 @@ function App() {
       });
   }, [stock])
 
-  const handleChange = (_, newStock) => {
-    if (newStock !== null) {
-      setStock(newStock);
-    }
-  }
-
-  const buttons = [
-    <ToggleButton
-      key="AAPL"
-      value="AAPL">AAPL</ToggleButton>,
-    <ToggleButton
-      key="MSFT"
-      value="MSFT">MSFT</ToggleButton>,
-    <ToggleButton
-      key="AMZN"
-      value="AMZN">AMZN</ToggleButton>,
-    <ToggleButton
-      key="TSLA"
-      value="TSLA">TSLA</ToggleButton>
-  ];
-
 
   return (
     <div className="App">
@@ -98,16 +125,9 @@ function App() {
         <h1>STOCK DASHBOARD RAAH</h1>
         <div className="Row">
           <ThemeProvider theme={theme}>
-            <ToggleButtonGroup
-              color="primary"
-              value={stock}
-              exclusive
-              orientation="vertical"
-              onChange={handleChange}
-            >{buttons}</ToggleButtonGroup>
-            <MakeChart
-              dates={dates} data={stocks} type={stock}
-            />
+            <MakeButton type={"stock"} value={stock} setButton={setStock} />
+            <MakeChart dates={dates} data={stocks} type={stock} />
+            <MakeButton type={""} value={stock} setButton={setStock} />
           </ThemeProvider>
         </div>
       </header>

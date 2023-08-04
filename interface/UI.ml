@@ -21,9 +21,6 @@ let draw_UI () = ()
    ../predict/aapl/2012-01-01/2013-12-31 [not yet implemented] *)
 let handler ~body:_ _sock req =
   let uri = Cohttp.Request.uri req in
-  print_s
-    (let uri = Uri.to_string uri in
-     [%message "Received a request!" (uri : string)]);
   let header = Cohttp.Header.init_with "Access-Control-Allow-Origin" "*" in
   let request = Uri.path uri |> String.split ~on:'/' in
   print_s [%message (request : string list)];
@@ -38,6 +35,13 @@ let handler ~body:_ _sock req =
     in
     print_s [%message (response : string)];
     Server.respond_string ~headers:header response
+  (* | [ _ ; "predict" ; _stock ; _start_date ; _end_date_historical ;
+     _end_date_pred ] -> let params = { Scraper.Monte_Carlo.start_date =
+     "2006-08-01" ; end_date_historical = "2008-10-01" ; end_date_pred =
+     "2009-11-10" ; stock = "MSFT" } in let%bind _response = Scraper.main
+     ~prediction_type:(Stock (Monte_Carlo params)) in print_endline
+     "WHEEEEE"; Server.respond_string ~headers:header ~status:`Not_found "\"
+     WHEEE \"" *)
   | _ ->
     Server.respond_string
       ~headers:header
