@@ -1,7 +1,7 @@
 open! Core
 open! Owl_base
 
-let calc_volatilty ~prices =
+let _calc_volatilty ~prices =
   let variance = Owl_base_stats.var prices in
   sqrt variance
 ;;
@@ -44,7 +44,7 @@ let calculate_d1_call
       /. (std_log_returns *. sqrt time_till_expiry))
 ;;
 
-let calculate_d1_put
+let _calculate_d1_put
   ~strike_price
   ~stock_price
   ~interest_rate
@@ -75,7 +75,7 @@ let main
     float_of_int (time_till_expiration ~start_date ~end_date:expiration_date)
   in
   let d1 =
-    calculate_d1_put
+    calculate_d1_call
       ~strike_price
       ~stock_price:spot_price
       ~interest_rate
@@ -90,5 +90,8 @@ let main
     *. Distributions.cdf_norm ~x:d2
   in
   let call_price = first_formula -. second_formula in
-  print_s [%message (call_price : float)]
+  print_s [%message (call_price : float)];
+  call_price
 ;;
+
+ignore main
