@@ -14,6 +14,16 @@ module Stock_data = struct
   let of_arrays (dates, stocks) = { dates; stocks }
 end
 
+module Monte_Carlo_data = struct
+  type t =
+    { accuracy : float
+    ; predictions : float array
+    }
+  [@@deriving sexp, jsonaf]
+
+  let of_arrays (accuracy, predictions) = { accuracy; predictions }
+end
+
 let create_plot () = ()
 let draw_UI () = ()
 
@@ -52,8 +62,13 @@ let handler ~body:_ _sock req =
     let%bind _response =
       Scraper.main ~prediction_type:(Stock (Monte_Carlo params))
     in
-    print_endline "WHEEEEE";
-    Server.respond_string ~headers:header ~status:`Not_found "\" WHEEE \""
+    let response =
+      Monte_Carlo_data.of_arrays _response
+      |> Monte_Carlo_data.jsonaf_of_t
+      |> Jsonaf.to_string
+    in
+    print_s [%message (response : string)];
+    Server.respond_string ~headers:header response
   | _ ->
     Server.respond_string
       ~headers:header
