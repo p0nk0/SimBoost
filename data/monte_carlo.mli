@@ -8,4 +8,4 @@ val main
   -> historical_stock_prices:float array
   -> pred_dates:string array
   -> real_pred_prices:float array
-  -> float array option
+  -> float * float array

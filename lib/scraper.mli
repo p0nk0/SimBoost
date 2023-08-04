@@ -30,7 +30,7 @@ type predictions =
   | Options of option_models
 
 (*Perform all the simulations*)
-val main : prediction_type:predictions -> unit Deferred.t
+val main : prediction_type:predictions -> (float * float array) Deferred.t
 
 val get
   :  start_date:string

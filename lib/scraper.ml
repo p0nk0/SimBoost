@@ -29,6 +29,11 @@ type predictions =
   | Stock of stock_models
   | Options of option_models
 
+(* type stock_results = float * float array type option_results = float *
+   float * float *)
+
+(* type results = | Stock of stock_results | Options of option_results *)
+
 let get ~start_date ~end_date ~stock =
   let path = "/api/v3/datasets/WIKI/" ^ stock ^ "/data.csv" in
   let uri =
@@ -87,7 +92,7 @@ let main_stock ~model_type =
 ;;
 
 (*Handles all of the models for Black Scholes P*)
-let main_options ~model_type =
+let _main_options ~model_type =
   match model_type with
   | Black_Scholes params ->
     let%bind historical_stock_data =
@@ -116,11 +121,10 @@ let main_options ~model_type =
 let main ~(prediction_type : predictions) =
   match prediction_type with
   | Stock model_with_params ->
-    let%bind _ = main_stock ~model_type:model_with_params in
-    return ()
-  | Options model_with_params ->
-    let%bind _ = main_options ~model_type:model_with_params in
-    return ()
+    let%bind predictions = main_stock ~model_type:model_with_params in
+    print_s [%message (predictions : float * float array)];
+    return predictions
+  | Options _model_with_params -> return (0., [| 0. |])
 ;;
 
 let command =

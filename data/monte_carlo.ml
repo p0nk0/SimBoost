@@ -4,13 +4,10 @@ open! Owl_base
 let num_trading_days = ref 252.
 
 (*Think of contraints on the dates for the data*)
-let total_growth_percentage ~stock_prices : float option =
-  if Array.length stock_prices < 2
-  then None
-  else (
-    let last_element = Array.last stock_prices in
-    let first_element = Array.get stock_prices 0 in
-    Some (last_element /. first_element))
+let total_growth_percentage ~stock_prices : float =
+  let last_element = Array.last stock_prices in
+  let first_element = Array.get stock_prices 0 in
+  last_element /. first_element
 ;;
 
 let calc_annualized_growth_percentage ~total_growth ~num_yrs_elapsed =
@@ -173,14 +170,13 @@ let main
   ~real_pred_prices
   =
   Owl_base_stats_prng.self_init ();
-  let open Option.Let_syntax in
   let last_date = Array.last historical_dates in
   let last_date = Date.of_string last_date in
   let first_date = Array.get historical_dates 0 in
   let first_date = Date.of_string first_date in
   let time_elapsed = Date.diff last_date first_date in
   let () = num_trading_days := float_of_int (Array.length pred_dates) in
-  let%bind total_growth =
+  let total_growth =
     total_growth_percentage ~stock_prices:historical_stock_prices
   in
   let num_yrs_elapsed = float_of_int time_elapsed /. 365. in
@@ -188,18 +184,14 @@ let main
     calc_annualized_growth_percentage ~total_growth ~num_yrs_elapsed
   in
   let pct_changes_stock = calc_pct_changes ~historical_stock_prices in
-  if Array.is_empty pct_changes_stock
-  then None
-  else (
-    let avg_predictions =
-      run_simulation
-        ~pct_changes_stock
-        ~annualized_growth_rate
-        ~historical_stock_prices
-    in
-    let accuracy =
-      accuracy ~preds_array:avg_predictions ~actual_array:real_pred_prices
-    in
-    print_s [%message (accuracy : float)];
-    Some avg_predictions)
+  let avg_predictions =
+    run_simulation
+      ~pct_changes_stock
+      ~annualized_growth_rate
+      ~historical_stock_prices
+  in
+  let accuracy =
+    accuracy ~preds_array:avg_predictions ~actual_array:real_pred_prices
+  in
+  accuracy, avg_predictions
 ;;
