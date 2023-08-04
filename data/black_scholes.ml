@@ -1,11 +1,6 @@
 open! Core
 open! Owl_base
 
-let _calc_volatilty ~prices =
-  let variance = Owl_base_stats.var prices in
-  sqrt variance
-;;
-
 let calc_log_returns ~prices =
   let _, log_returns =
     Array.foldi
@@ -90,7 +85,6 @@ let main
     *. Distributions.cdf_norm ~x:d2
   in
   let call_price = first_formula -. second_formula in
-  print_s [%message (call_price : float)];
   call_price
 ;;
 

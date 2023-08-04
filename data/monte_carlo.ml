@@ -118,7 +118,6 @@ let get_one_pred_set
 let sum_arrays ~(list_of_arrays : float array array) =
   let len_one_array = Array.length (Array.get list_of_arrays 0) in
   let sum_array = Array.create ~len:len_one_array 0.0 in
-  print_s [%message (Array.get list_of_arrays 0 : float array)];
   Array.iter list_of_arrays ~f:(fun curr_pred_array ->
     Array.iteri curr_pred_array ~f:(fun idx_elt curr_pred ->
       let curr_sum = Array.get sum_array idx_elt in
@@ -153,7 +152,6 @@ let run_simulation
   in
   let sum_arrays = sum_arrays ~list_of_arrays:predictions_array in
   let avg_array = avg_array ~array:sum_arrays ~num_simulations:10000 in
-  print_s [%message (avg_array : float array)];
   avg_array
 ;;
 

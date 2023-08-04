@@ -6,7 +6,7 @@ type stock_models
 type predictions
 
 (*Perform all the simulations*)
-val main : prediction_type:predictions -> float array option Deferred.t
+val main : prediction_type:predictions -> unit Deferred.t
 
 val get
   :  start_date:string
