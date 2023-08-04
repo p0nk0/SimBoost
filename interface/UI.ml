@@ -35,13 +35,25 @@ let handler ~body:_ _sock req =
     in
     print_s [%message (response : string)];
     Server.respond_string ~headers:header response
-  (* | [ _ ; "predict" ; _stock ; _start_date ; _end_date_historical ;
-     _end_date_pred ] -> let params = { Scraper.Monte_Carlo.start_date =
-     "2006-08-01" ; end_date_historical = "2008-10-01" ; end_date_pred =
-     "2009-11-10" ; stock = "MSFT" } in let%bind _response = Scraper.main
-     ~prediction_type:(Stock (Monte_Carlo params)) in print_endline
-     "WHEEEEE"; Server.respond_string ~headers:header ~status:`Not_found "\"
-     WHEEE \"" *)
+  | [ _
+    ; "predict"
+    ; _stock
+    ; _start_date
+    ; _end_date_historical
+    ; _end_date_pred
+    ] ->
+    let params =
+      { Scraper.Monte_Carlo.start_date = "2006-08-01"
+      ; end_date_historical = "2008-10-01"
+      ; end_date_pred = "2009-11-10"
+      ; stock = "MSFT"
+      }
+    in
+    let%bind _response =
+      Scraper.main ~prediction_type:(Stock (Monte_Carlo params))
+    in
+    print_endline "WHEEEEE";
+    Server.respond_string ~headers:header ~status:`Not_found "\" WHEEE \""
   | _ ->
     Server.respond_string
       ~headers:header
