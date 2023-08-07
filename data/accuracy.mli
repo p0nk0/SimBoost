@@ -7,3 +7,9 @@ val options_call
   -> call_option_price:float
   -> strike_price:float
   -> float
+
+val options_put
+  :  ending_stock_price:float
+  -> put_option_price:float
+  -> strike_price:float
+  -> float

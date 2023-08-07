@@ -19,6 +19,7 @@ module Black_Scholes : sig
     ; start_date : string
     ; expiration_date : string
     ; historical_date_start : string
+    ; call_put : Source.Black_scholes.Contract_type.t
     }
 end
 

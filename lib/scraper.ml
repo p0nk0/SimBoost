@@ -19,6 +19,7 @@ module Black_Scholes = struct
     ; start_date : string
     ; expiration_date : string
     ; historical_date_start : string
+    ; call_put : Source.Black_scholes.Contract_type.t
     }
 end
 
@@ -126,6 +127,7 @@ let main_options ~model_type =
         ~start_date:params.start_date
         ~expiration_date:params.expiration_date
         ~expiration_price:expiration_stock_price
+        ~call_put:params.call_put
     in
     print_s [%message (predicted_option_price : float * float * float)];
     return predicted_option_price
@@ -148,10 +150,10 @@ let command =
     (let%map_open.Command () = return () in
      fun () ->
        let monte_carlo_params =
-         { Monte_Carlo.start_date = "2006-08-01"
-         ; end_date_historical = "2008-10-01"
-         ; end_date_pred = "2009-11-10"
-         ; stock = "MSFT"
+         { Monte_Carlo.start_date = "2013-08-01"
+         ; end_date_historical = "2014-10-01"
+         ; end_date_pred = "2015-11-10"
+         ; stock = "TSLA"
          }
        in
        let black_scholes_params =
@@ -161,6 +163,7 @@ let command =
          ; start_date = "2017-01-01"
          ; expiration_date = "2017-02-01"
          ; historical_date_start = "2016-01-01"
+         ; call_put = Call
          }
        in
        let%bind _data =

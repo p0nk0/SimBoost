@@ -1,6 +1,12 @@
 open! Core
 open! Owl_base
 
+module Contract_type = struct
+  type t =
+    | Call
+    | Put
+end
+
 let calc_log_returns ~prices =
   let _, log_returns =
     Array.foldi
@@ -70,6 +76,7 @@ let main
   ~start_date
   ~expiration_date
   ~expiration_price
+  ~call_put
   =
   let spot_price = Array.get stock_prices (Array.length stock_prices - 1) in
   let std_log_returns = std_dev_log_returns ~prices:stock_prices in
@@ -85,19 +92,39 @@ let main
       ~time_till_expiry
   in
   let d2 = calculate_d2 ~d1 ~std_log_returns ~time_till_expiry in
-  let first_formula = spot_price *. Distributions.cdf_norm ~x:d1 in
-  let second_formula =
-    strike_price
-    *. exp (-1. *. interest_rate *. time_till_expiry)
-    *. Distributions.cdf_norm ~x:d2
-  in
-  let call_price = first_formula -. second_formula in
-  print_s [%message (Distributions.cdf_norm ~x:d2 : float)];
-  let pnl =
-    Accuracy.options_call
-      ~ending_stock_price:expiration_price
-      ~call_option_price:call_price
-      ~strike_price
-  in
-  expiration_price, call_price, pnl
+  match call_put with
+  | Contract_type.Call ->
+    let first_formula = spot_price *. Distributions.cdf_norm ~x:d1 in
+    let second_formula =
+      strike_price
+      *. exp (-1. *. interest_rate *. time_till_expiry)
+      *. Distributions.cdf_norm ~x:d2
+    in
+    let call_price = first_formula -. second_formula in
+    print_s [%message (Distributions.cdf_norm ~x:d2 : float)];
+    let pnl =
+      Accuracy.options_call
+        ~ending_stock_price:expiration_price
+        ~call_option_price:call_price
+        ~strike_price
+    in
+    expiration_price, call_price, pnl
+  | Contract_type.Put ->
+    let norm_d2 = Distributions.cdf_norm ~x:(-1. *. d2) in
+    let first_formula =
+      strike_price
+      *. exp (-1. *. interest_rate *. time_till_expiry)
+      *. norm_d2
+    in
+    let second_formula =
+      spot_price *. Distributions.cdf_norm ~x:(-1. *. d1)
+    in
+    let put_option_price = first_formula -. second_formula in
+    let pnl =
+      Accuracy.options_put
+        ~ending_stock_price:expiration_price
+        ~put_option_price
+        ~strike_price
+    in
+    expiration_price, put_option_price, pnl
 ;;
