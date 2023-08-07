@@ -84,14 +84,20 @@ let main_stock ~model_type =
     let pred_dates, pred_stock_prices =
       Source.Data.fetch_data_as_array ~retrieved_stock_data:pred_stock_data
     in
-    let predicted_prices =
+    let accuracy, predicted_prices =
       Source.Monte_carlo.main
         ~historical_dates:hist_dates
         ~historical_stock_prices:hist_stock_prices
         ~pred_dates
         ~real_pred_prices:pred_stock_prices
     in
-    return predicted_prices
+    let zeros_to_add = Array.length hist_stock_prices in
+    let predicted_prices =
+      Source.Data.pad_array_with_zeros
+        ~current_array:predicted_prices
+        ~num_zeros_to_add:zeros_to_add
+    in
+    return (accuracy, predicted_prices)
 ;;
 
 (*Handles all of the models for Black Scholes P*)
