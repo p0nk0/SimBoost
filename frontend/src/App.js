@@ -61,6 +61,7 @@ function MakeButton({ type, value, setButton }) {
     }
   }
   let buttons;
+  let exclusive;
   if (type === "stock") {
     buttons = [
       <ToggleButton
@@ -76,14 +77,20 @@ function MakeButton({ type, value, setButton }) {
         key="TSLA"
         value="TSLA">TSLA</ToggleButton>
     ];
-  } else {
+    exclusive = true
+  } else if (type === "predict") {
     buttons = [<ToggleButton
       key="Monte Carlo"
-      value="Monte Carlo">Monte Carlo</ToggleButton>,
-    <ToggleButton
+      value="Monte Carlo">Monte Carlo</ToggleButton>]
+    {/* <ToggleButton
       key="Black-Scholes"
-      value="Black-Scholes">Black-Scholes</ToggleButton>,]
+      value="Black-Scholes">Black-Scholes</ToggleButton>,] */}
+    exclusive = false
+  } else {
+    buttons = []
   }
+
+
 
 
 
@@ -127,7 +134,7 @@ function App() {
           <ThemeProvider theme={theme}>
             <MakeButton type={"stock"} value={stock} setButton={setStock} />
             <MakeChart dates={dates} data={stocks} type={stock} />
-            <MakeButton type={""} value={stock} setButton={setStock} />
+            <MakeButton type={"predict"} value={type} setButton={setType} />
           </ThemeProvider>
         </div>
       </header>
