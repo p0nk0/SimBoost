@@ -34,7 +34,7 @@ let handler ~body:_ _sock req =
   let header = Cohttp.Header.init_with "Access-Control-Allow-Origin" "*" in
   let request = Uri.path uri |> String.split ~on:'/' in
   print_s [%message (request : string list)];
-  match Uri.path uri |> String.split ~on:'/' with
+  match request with
   | [ _; "stock"; stock; start_date; end_date ] ->
     let%bind _response = Scraper.get ~start_date ~end_date ~stock in
     let response =
@@ -46,7 +46,7 @@ let handler ~body:_ _sock req =
     print_s [%message (response : string)];
     Server.respond_string ~headers:header response
   | [ _
-    ; "predict"
+    ; "Monte_Carlo"
     ; _stock
     ; _start_date
     ; _end_date_historical
@@ -61,6 +61,11 @@ let handler ~body:_ _sock req =
     in
     let%bind _response =
       Scraper.main ~prediction_type:(Stock (Monte_Carlo params))
+    in
+    let _response =
+      match _response with
+      | Stock n -> n
+      | _ -> failwith "Monte Carlo returned an option prediction ?????"
     in
     let response =
       Monte_Carlo_data.of_arrays _response

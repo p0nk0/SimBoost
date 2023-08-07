@@ -33,7 +33,6 @@ function MakeChart({ type, data, dates }) {
 
       series={[
         {
-          id: "Data",
           label: type,
           data: data,
           color: theme.palette.primary.main
@@ -80,8 +79,8 @@ function MakeButton({ type, value, setButton }) {
     exclusive = true
   } else if (type === "predict") {
     buttons = [<ToggleButton
-      key="Monte Carlo"
-      value="Monte Carlo">Monte Carlo</ToggleButton>]
+      key="Monte_Carlo"
+      value="Monte_Carlo">Monte Carlooo</ToggleButton>]
     {/* <ToggleButton
       key="Black-Scholes"
       value="Black-Scholes">Black-Scholes</ToggleButton>,] */}
@@ -89,10 +88,6 @@ function MakeButton({ type, value, setButton }) {
   } else {
     buttons = []
   }
-
-
-
-
 
   return (
     <ToggleButtonGroup
@@ -108,22 +103,33 @@ function MakeButton({ type, value, setButton }) {
 function App() {
   let [dates, setDates] = useState([1]);
   let [stocks, setStocks] = useState([1]);
+  let [predictions, setPredictions] = useState([1])
   let [stock, setStock] = useState("AAPL");
   let [type, setType] = useState("stock");
 
   useEffect(function () {
-    fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/" + type + "/" + stock + "/2012-01-01/2013-12-31")
-      .then((response) => {
-        return response.json();
-      }).then((parsed_response) => {
-        const dates =
-          parsed_response.dates.map((date_string) => (
-            new Date(date_string)
-          ));
-        setDates(dates);
-        setStocks(parsed_response.stocks);
-      });
-  }, [stock])
+    if (type === "stock") {
+      fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/" + stock + "/2012-01-01/2013-12-31")
+        .then((response) => {
+          return response.json();
+        }).then((parsed_response) => {
+          const dates =
+            parsed_response.dates.map((date_string) => (
+              new Date(date_string)
+            ));
+          setDates(dates);
+          setStocks(parsed_response.stocks);
+        })
+    }
+    else if (type === "Monte_Carlo") {
+      fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/2012-01-01/2013-12-31/")
+        .then((response) => {
+          return response.json();
+        }).then((parsed_response) => {
+          setPredictions(parsed_response.predictions);
+        })
+    }
+  }, [type, stock])
 
 
   return (
