@@ -69,6 +69,7 @@ let main
   ~interest_rate
   ~start_date
   ~expiration_date
+  ~expiration_price
   =
   let spot_price = Array.get stock_prices (Array.length stock_prices - 1) in
   let std_log_returns = std_dev_log_returns ~prices:stock_prices in
@@ -92,5 +93,11 @@ let main
   in
   let call_price = first_formula -. second_formula in
   print_s [%message (Distributions.cdf_norm ~x:d2 : float)];
-  call_price
+  let pnl =
+    Accuracy.options_call
+      ~ending_stock_price:expiration_price
+      ~call_option_price:call_price
+      ~strike_price
+  in
+  expiration_price, call_price, pnl
 ;;

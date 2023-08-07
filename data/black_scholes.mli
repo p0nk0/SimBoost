@@ -7,4 +7,5 @@ val main
   -> interest_rate:float
   -> start_date:string
   -> expiration_date:string
-  -> float
+  -> expiration_price:float
+  -> float * float * float

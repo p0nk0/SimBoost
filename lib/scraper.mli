@@ -29,8 +29,15 @@ type predictions =
   | Stock of stock_models
   | Options of option_models
 
+type stock_results = float * float array
+type option_results = float * float * float
+
+type results =
+  | Stock of stock_results
+  | Options of option_results
+
 (*Perform all the simulations*)
-val main : prediction_type:predictions -> (float * float array) Deferred.t
+val main : prediction_type:predictions -> results Deferred.t
 
 val get
   :  start_date:string

@@ -29,10 +29,12 @@ type predictions =
   | Stock of stock_models
   | Options of option_models
 
-(* type stock_results = float * float array type option_results = float *
-   float * float *)
+type stock_results = float * float array
+type option_results = float * float * float
 
-(* type results = | Stock of stock_results | Options of option_results *)
+type results =
+  | Stock of stock_results
+  | Options of option_results
 
 let get ~start_date ~end_date ~stock =
   let path = "/api/v3/datasets/WIKI/" ^ stock ^ "/data.csv" in
@@ -92,7 +94,7 @@ let main_stock ~model_type =
 ;;
 
 (*Handles all of the models for Black Scholes P*)
-let _main_options ~model_type =
+let main_options ~model_type =
   match model_type with
   | Black_Scholes params ->
     let%bind historical_stock_data =
@@ -105,6 +107,17 @@ let _main_options ~model_type =
       Source.Data.fetch_data_as_array
         ~retrieved_stock_data:historical_stock_data
     in
+    let%bind expiration_data =
+      get
+        ~start_date:params.expiration_date
+        ~end_date:params.expiration_date
+        ~stock:params.stock
+    in
+    let _, expiration_stock_price =
+      Source.Data.fetch_data_as_array ~retrieved_stock_data:expiration_data
+    in
+    let expiration_stock_price = Array.get expiration_stock_price 0 in
+    print_s [%message (expiration_stock_price : float)];
     let predicted_option_price =
       Source.Black_scholes.main
         ~stock_prices:hist_stock_prices
@@ -112,8 +125,9 @@ let _main_options ~model_type =
         ~interest_rate:params.interest_rate
         ~start_date:params.start_date
         ~expiration_date:params.expiration_date
+        ~expiration_price:expiration_stock_price
     in
-    print_s [%message (predicted_option_price : float)];
+    print_s [%message (predicted_option_price : float * float * float)];
     return predicted_option_price
 ;;
 
@@ -122,9 +136,10 @@ let main ~(prediction_type : predictions) =
   match prediction_type with
   | Stock model_with_params ->
     let%bind predictions = main_stock ~model_type:model_with_params in
-    print_s [%message (predictions : float * float array)];
-    return predictions
-  | Options _model_with_params -> return (0., [| 0. |])
+    return (Stock predictions)
+  | Options model_with_params ->
+    let%bind predictions = main_options ~model_type:model_with_params in
+    return (Options predictions)
 ;;
 
 let command =
@@ -143,9 +158,9 @@ let command =
          { Black_Scholes.stock = "TSLA"
          ; interest_rate = 0.05
          ; strike_price = 20.
-         ; start_date = "2017-08-01"
-         ; expiration_date = "2018-01-01"
-         ; historical_date_start = "2010-01-01"
+         ; start_date = "2017-01-01"
+         ; expiration_date = "2017-02-01"
+         ; historical_date_start = "2016-01-01"
          }
        in
        let%bind _data =
