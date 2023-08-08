@@ -29,8 +29,7 @@ let fetch_data_as_array ~retrieved_stock_data =
 ;;
 
 let pad_array_with_zeros ~(current_array : float array) ~num_zeros_to_add =
-  let zero_array = Array.create ~len:num_zeros_to_add 0.0 in
+  let zero_array = Array.create ~len:(num_zeros_to_add - 1) 0.0 in
   let new_array = Array.append zero_array current_array in
-  print_s [%message (new_array : float array)];
   new_array
 ;;

@@ -9,6 +9,7 @@ module Monte_Carlo : sig
     ; end_date_pred : string
     ; stock : string
     }
+  [@@deriving sexp_of]
 end
 
 module Black_Scholes : sig

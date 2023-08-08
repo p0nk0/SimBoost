@@ -28,7 +28,7 @@ let create_plot () = ()
 let draw_UI () = ()
 
 (* url format example: ../stock/aapl/2012-01-01/2013-12-31
-   ../predict/aapl/2012-01-01/2013-12-31 [not yet implemented] *)
+   ../predict/aapl/2012-01-01/2013-12-31/2014-12-31 [not yet implemented] *)
 let handler ~body:_ _sock req =
   let uri = Cohttp.Request.uri req in
   let header = Cohttp.Header.init_with "Access-Control-Allow-Origin" "*" in
@@ -43,20 +43,19 @@ let handler ~body:_ _sock req =
       |> Stock_data.jsonaf_of_t
       |> Jsonaf.to_string
     in
-    print_s [%message (response : string)];
     Server.respond_string ~headers:header response
   | [ _
     ; "Monte_Carlo"
-    ; _stock
-    ; _start_date
-    ; _end_date_historical
-    ; _end_date_pred
+    ; stock
+    ; start_date
+    ; end_date_historical
+    ; end_date_pred
     ] ->
     let params =
-      { Scraper.Monte_Carlo.start_date = "2006-08-01"
-      ; end_date_historical = "2008-10-01"
-      ; end_date_pred = "2009-11-10"
-      ; stock = "MSFT"
+      { Scraper.Monte_Carlo.start_date
+      ; end_date_historical
+      ; end_date_pred
+      ; stock
       }
     in
     let%bind _response =
@@ -72,7 +71,6 @@ let handler ~body:_ _sock req =
       |> Monte_Carlo_data.jsonaf_of_t
       |> Jsonaf.to_string
     in
-    print_s [%message (response : string)];
     Server.respond_string ~headers:header response
   | _ ->
     Server.respond_string

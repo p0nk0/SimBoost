@@ -9,6 +9,7 @@ module Monte_Carlo = struct
     ; end_date_pred : string
     ; stock : string
     }
+  [@@deriving sexp_of]
 end
 
 module Black_Scholes = struct
@@ -124,7 +125,6 @@ let main_options ~model_type =
       Source.Data.fetch_data_as_array ~retrieved_stock_data:expiration_data
     in
     let expiration_stock_price = Array.get expiration_stock_price 0 in
-    print_s [%message (expiration_stock_price : float)];
     let predicted_option_price =
       Source.Black_scholes.main
         ~stock_prices:hist_stock_prices
@@ -135,7 +135,6 @@ let main_options ~model_type =
         ~expiration_price:expiration_stock_price
         ~call_put:params.call_put
     in
-    print_s [%message (predicted_option_price : float * float * float)];
     return predicted_option_price
 ;;
 
