@@ -1,5 +1,7 @@
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { cyan } from '@mui/material/colors';
+import Button from '@mui/material/Button';
+import { Link } from "react-router-dom";
 
 const theme = createTheme({
     palette: {
@@ -16,7 +18,11 @@ export default function Help() {
     return (
         <div className="App">
             <header className="App-header">
+            
                 <ThemeProvider theme={theme}>
+                <Link to="/">
+                            <Button color="secondary" variant="outlined"> Home </Button>
+                        </Link>
                     <h1 color="green">
                         Welcome to SimBoost!
                     </h1>
