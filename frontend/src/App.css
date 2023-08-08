@@ -2,11 +2,6 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
 .App-header {
   background-color: #101418;
   min-height: 100vh;
@@ -27,4 +22,14 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center
+}
+
+#paragraph {
+  font-size:calc(1px + 2vmin);
+  margin-left:10vw; 
+  margin-right:10vw;
+}
+
+.lists {
+  text-align:left;
 }
