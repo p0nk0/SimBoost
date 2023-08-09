@@ -13,6 +13,8 @@ import { DateField } from '@mui/x-date-pickers/DateField';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
+import CircularProgress from '@mui/material/CircularProgress';
+
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { cyan } from '@mui/material/colors';
 
@@ -173,17 +175,34 @@ function MakeDateRange({ start, setStart, end, setEnd }) {
 }
 
 export default function Home() {
+
+    // arrays to hold time-series data
     let [dates, setDates] = useState([1]);
     let [stocks, setStocks] = useState([1]);
     let [predictions, setPredictions] = useState([1])
+
+    // what kind of data we're asking the REST API for
     let [stock, setStock] = useState("AAPL");
     let [type, setType] = useState("");
-    let [accuracy, setAccuracy] = useState(0);
+
+    // what dates we're asking for
     let [start, setStart] = useState(dayjs("2006-01-01"))
-    let [middle, setMiddle] = useState(dayjs("2007-01-01"))
     let [end, setEnd] = useState(dayjs("2008-01-01"))
+    let [middle, setMiddle] = useState(dayjs("2007-01-01"))
+
+    // monte carlo specific variables
+    let [accuracy, setAccuracy] = useState(0);
+
+    // black-scholes specific variables
+    let [strike, setStrike] = useState(0);
+    let [interest, setInterest] = useState(0);
+    let [call_put, setCall_Put] = useState("call"); // this will always be call or put, lowercase
+
+    let [loading, setLoading] = useState(false);
+
 
     useEffect(function () {
+
 
         function to_string(date) {
             return date.toISOString().slice(0, 10);
@@ -191,6 +210,9 @@ export default function Home() {
 
         setDates([1]);
         setStocks([1]);
+
+
+
         fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/" + stock + "/" + to_string(start) + "/" + to_string(end))
             .then((response) => {
                 return response.json();
@@ -203,7 +225,10 @@ export default function Home() {
                 setStocks(parsed_response.stocks);
             }).catch((error) => console.log(error));
 
+
+
         if (type === "Monte_Carlo") {
+            setLoading(true);
             setPredictions([1]);
             fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/" + to_string(start) + "/" + to_string(middle) + "/" + to_string(end))
                 .then((response) => {
@@ -211,19 +236,19 @@ export default function Home() {
                 }).then((parsed_response) => {
                     setPredictions(parsed_response.predictions);
                     setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
-                }).catch((error) => console.log(error));
+                }).catch((error) => console.log(error)).finally((_) => setLoading(false));
         }
 
-        if (type === "Black_Scholes") {
+        /* elif (type === "Black_Scholes") {
             setPredictions([1]);
-            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/" + to_string(start) + "/" + to_string(middle) + "/" + to_string(end))
+            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Black_Scholes/" + stock + "/" + strike + "/" + interest + "/" + to_string(middle) + "/" + to_string(end) + "/" + to_string(start) + "/" + )
                 .then((response) => {
                     return response.json();
                 }).then((parsed_response) => {
                     setPredictions(parsed_response.predictions);
                     setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
                 }).catch((error) => console.log(error));
-        }
+        } */
 
         if (type == null) {
             setPredictions(([1]))
@@ -245,7 +270,7 @@ export default function Home() {
                         </div>
                         <div className="Row">
                             <MakeButton type={"stock"} value={stock} setButton={setStock} />
-                            <MakeChart dates={dates} data={stocks} predictions={predictions} type={stock} />
+                            {loading ? <CircularProgress /> : <MakeChart dates={dates} data={stocks} predictions={predictions} type={stock} />}
                             <MakeButton type={"predict"} value={type} setButton={setType} />
                         </div>
 
