@@ -109,5 +109,5 @@ let main
         ~put_option_price
         ~strike_price
     in
-    expiration_price, put_option_price, pnl
+    expiration_price, -1. *. put_option_price, pnl
 ;;

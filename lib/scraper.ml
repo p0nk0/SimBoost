@@ -24,6 +24,11 @@ module Black_Scholes = struct
     }
 end
 
+(* module Binomial_Pricing = struct type t = { stock : string ; strike_price
+   : float ; interest_rate : float ; start_date : string ; expiration_date :
+   string ; historical_date_start : string ; call_put :
+   Source.Options.Contract_type.t } end *)
+
 type stock_models = Monte_Carlo of Monte_Carlo.t
 type option_models = Black_Scholes of Black_Scholes.t
 

@@ -24,6 +24,19 @@ module Monte_Carlo_data = struct
   let of_arrays (accuracy, predictions) = { accuracy; predictions }
 end
 
+module Black_Scholes_data = struct
+  type t =
+    { stock_expiration_price : float
+    ; option_contract_price : float
+    ; pnl : float
+    }
+  [@@deriving sexp, jsonaf]
+
+  let of_arrays (stock_expiration_price, option_contract_price, pnl) =
+    { stock_expiration_price; option_contract_price; pnl }
+  ;;
+end
+
 let create_plot () = ()
 let draw_UI () = ()
 
@@ -70,6 +83,49 @@ let handler ~body:_ _sock req =
     let response =
       Monte_Carlo_data.of_arrays _response
       |> Monte_Carlo_data.jsonaf_of_t
+      |> Jsonaf.to_string
+    in
+    print_endline "done :)";
+    Server.respond_string ~headers:header response
+  | [ _
+    ; "Black_Scholes"
+    ; stock
+    ; strike_price
+    ; interest_rate
+    ; start_date
+    ; expiration_date
+    ; historical_date_start
+    ; call_put
+    ] ->
+    let strike_price = float_of_string strike_price in
+    let interest_rate = float_of_string interest_rate in
+    let call_put =
+      match call_put with
+      | "Call" -> Source.Options.Contract_type.Call
+      | "Put" -> Source.Options.Contract_type.Put
+      | _ -> Source.Options.Contract_type.Call
+    in
+    let params =
+      { Scraper.Black_Scholes.stock
+      ; strike_price
+      ; interest_rate
+      ; start_date
+      ; expiration_date
+      ; historical_date_start
+      ; call_put
+      }
+    in
+    let%bind _response =
+      Scraper.main ~prediction_type:(Options (Black_Scholes params))
+    in
+    let _response =
+      match _response with
+      | Options n -> n
+      | _ -> failwith "Black Scholes received incorrect input?????"
+    in
+    let response =
+      Black_Scholes_data.of_arrays _response
+      |> Black_Scholes_data.jsonaf_of_t
       |> Jsonaf.to_string
     in
     print_endline "done :)";
