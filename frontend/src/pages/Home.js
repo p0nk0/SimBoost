@@ -125,8 +125,8 @@ function MakeButton({ type, value, setButton }) {
             key="Monte_Carlo"
             value="Monte_Carlo">Monte Carlo</ToggleButton>,
         <ToggleButton
-            key="Black-Scholes"
-            value="Black-Scholes">Black-Scholes</ToggleButton>,]
+            key="Black_Scholes"
+            value="Black_Scholes">Black-Scholes</ToggleButton>,]
     } else {
         buttons = []
     }
@@ -191,7 +191,6 @@ export default function Home() {
 
         setDates([1]);
         setStocks([1]);
-        console.log(to_string(start) + "--" + to_string(end));
         fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/" + stock + "/" + to_string(start) + "/" + to_string(end))
             .then((response) => {
                 return response.json();
@@ -202,7 +201,7 @@ export default function Home() {
                     ));
                 setDates(dates);
                 setStocks(parsed_response.stocks);
-            })
+            }).catch((error) => console.log(error));
 
         if (type === "Monte_Carlo") {
             setPredictions([1]);
@@ -212,7 +211,18 @@ export default function Home() {
                 }).then((parsed_response) => {
                     setPredictions(parsed_response.predictions);
                     setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
-                })
+                }).catch((error) => console.log(error));
+        }
+
+        if (type === "Black_Scholes") {
+            setPredictions([1]);
+            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/" + to_string(start) + "/" + to_string(middle) + "/" + to_string(end))
+                .then((response) => {
+                    return response.json();
+                }).then((parsed_response) => {
+                    setPredictions(parsed_response.predictions);
+                    setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
+                }).catch((error) => console.log(error));
         }
 
         if (type == null) {
@@ -246,20 +256,20 @@ export default function Home() {
 
 
                         <h3>Model Parameters</h3>
-                        <p> Monte Carlo: </p>
-                        <DateField label="Prediction Start Date"
-                            value={middle}
-                            onChange={(newValue) => {
-                                if (newValue.isBetween(start, end)) {
-                                    setMiddle(newValue)
-                                }
-                            }}
-                            format="MM-DD-YYYY"
-                            minDate={start}
-                            maxDate={end} />
-                        <p> Black scholes: [many options] </p>
-
+                        <p> Monte Carlo: &nbsp;
+                            <DateField label="Prediction Start Date"
+                                value={middle}
+                                onChange={(newValue) => {
+                                    if (newValue.isBetween(start, end)) {
+                                        setMiddle(newValue)
+                                    }
+                                }}
+                                format="MM-DD-YYYY"
+                                minDate={start}
+                                maxDate={end} /> </p>
+                        <p> Black scholes: &nbsp;[many options] </p>
                         <h3>Model Results</h3>
+                        <p>percent error (MAPE): {accuracy}%</p>
                         <p>percent error (MAPE): {accuracy}%</p>
                     </LocalizationProvider>
                 </ThemeProvider>

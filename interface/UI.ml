@@ -88,7 +88,7 @@ let start_server port () =
     "Try 'curl http://localhost:%d/test?hello=xyz'\n%!"
     port;
   Server.create
-    ~on_handler_error:`Raise
+    ~on_handler_error:`Ignore
     (Async.Tcp.Where_to_listen.of_port port)
     handler
   >>= fun _server -> Deferred.never ()
