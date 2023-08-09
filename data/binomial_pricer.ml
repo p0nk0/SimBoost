@@ -6,23 +6,20 @@ let create_arrays n =
   Array.mapi m_list ~f:(fun idx _elt -> float_of_int idx)
 ;;
 
-let main
-  ~stock_prices
-  ~strike_price
-  ~interest_rate
-  ~start_date
-  ~expiration_date
-  ~number_of_time_steps
-  =
-  let spot_price = Array.get stock_prices (Array.length stock_prices - 1) in
-  let volatility = Options.volatility ~prices:stock_prices in
-  let time_till_expiry =
-    Options.time_till_expiration ~start_date ~end_date:expiration_date
-  in
+let main ~strike_price ~interest_rate ~number_of_time_steps =
+  (* let spot_price = Array.get stock_prices (Array.length stock_prices - 1)
+     in *)
+  let spot_price = 100. in
+  (* let volatility = Options.volatility ~prices:stock_prices in *)
+  let volatility = log 1.2 in
+  (* let time_till_expiry = Options.time_till_expiration ~start_date
+     ~end_date:expiration_date in *)
+  let time_till_expiry = 1. in
   let time_step = time_till_expiry /. float_of_int number_of_time_steps in
   let u = exp (volatility *. sqrt time_step) in
   let d = 1. /. u in
   let prob = (exp (interest_rate *. time_step) -. d) /. (u -. d) in
+  print_s [%message (prob : float)];
   let m_list = create_arrays number_of_time_steps in
   let k_list = create_arrays number_of_time_steps in
   let tree =
@@ -41,16 +38,22 @@ let main
     let m_idx = int_of_float curr_m in
     tree.(number_of_time_steps).(m_idx) <- new_elt);
   let k_list = Array.rev k_list in
+  let k_list = Array.sub k_list ~pos:1 ~len:(Array.length k_list - 1) in
+  print_s [%message (k_list : float array)];
+  print_s [%message (m_list : float array)];
   Array.iteri k_list ~f:(fun _idx_k curr_k ->
+    print_s [%message (curr_k : float)];
     Array.iteri m_list ~f:(fun idx_m _curr_m ->
       let curr_k = int_of_float curr_k in
       if idx_m <= curr_k
       then (
+        print_s [%message (idx_m : int)];
         let new_elt =
           (exp (-1. *. interest_rate *. time_step)
            *. (prob *. tree.(curr_k + 1).(idx_m + 1)))
-          +. ((1. -. prob) *. tree.(curr_k + 1).(idx_m + 1))
+          +. ((1. -. prob) *. tree.(curr_k + 1).(idx_m))
         in
+        print_s [%message (new_elt : float)];
         tree.(curr_k).(idx_m) <- new_elt)));
   tree.(0).(0)
 ;;
