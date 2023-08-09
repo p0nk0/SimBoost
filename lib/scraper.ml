@@ -20,7 +20,7 @@ module Black_Scholes = struct
     ; start_date : string
     ; expiration_date : string
     ; historical_date_start : string
-    ; call_put : Source.Black_scholes.Contract_type.t
+    ; call_put : Source.Options.Contract_type.t
     }
 end
 
@@ -177,6 +177,16 @@ let command =
        let%bind _data_black_scholes =
          main ~prediction_type:(Options (Black_Scholes black_scholes_params))
        in
+       let number_of_time_steps = 3 in
+       let strike_price = 100. in
+       let interest_rate = 0. in
+       let option_price =
+         Source.Binomial_pricer.main
+           ~strike_price
+           ~interest_rate
+           ~number_of_time_steps
+       in
+       print_s [%message (option_price : float)];
        return ())
 ;;
 (* let%bind response = Cohttp_async.Client.get uri in () *)

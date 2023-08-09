@@ -46,7 +46,7 @@ export default function Help() {
                     <p id = "paragraph"> Monte Carlo uses historical stock data from the General Start Date to Prediction Start Date to make daily stock predictions from the Prediction Start Date to General End Date. Predictions will also display on the graph along with a Mean Absolute Percentage Error!</p>
                     <p id = "paragraph"> <b> Option Contract Pricing </b> </p>
                     <ul> <li class = "lists" id="paragraph"> Black Scholes</li> </ul>
-                    <p id = "paragraph"> Black Scholes predicts prices for Call Option and Put Option contracts of 100 shares per contract.  </p>
+                    <p id = "paragraph"> Black Scholes predicts prices for Call Option and Put Option contracts of 100 shares per contract. We assume a European type option in this case. </p>
                     <p id = "paragraph"> Use the General Model Parameters to specify the start and ending dates over the entire time frame of stock data to be used in the model.  </p>
                     <p id = "paragraph"> Input a Start Date for your contract. The model uses historical stock data from General Start Date to Contract Start Date to price an option that starts on the Contract Start Date and expires on the General End Date.  </p>
                     <p id = "paragraph"> Our model will provide the price for your Call/Put option and the PNL that you would have made if you traded the stock at the strike price of the contract and ending stock price of the company that you chose, taking into account the price of the option. </p>
