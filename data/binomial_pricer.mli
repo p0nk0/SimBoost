@@ -7,6 +7,5 @@ val main
   -> interest_rate:float
   -> start_date:string
   -> expiration_date:string
-  -> expiration_price:float
-  -> call_put:Options.Contract_type.t
-  -> float * float * float
+  -> number_of_time_steps:int
+  -> float
