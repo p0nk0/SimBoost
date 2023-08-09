@@ -24,19 +24,18 @@
   align-items: center
 }
 
-<<<<<<< HEAD
 #paragraph {
-  font-size:calc(1px + 2vmin);
-  margin-left:10vw; 
-  margin-right:10vw;
+  font-size: calc(1px + 2vmin);
+  margin-left: 10vw;
+  margin-right: 10vw;
 }
 
 .lists {
-  text-align:left;
-=======
+  text-align: left;
+}
+
 .Help-button {
   display: flex;
   justify-content: end;
   text-align: right
->>>>>>> 5af1299 (added help button)
 }
