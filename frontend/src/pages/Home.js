@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import '../App.css';
 
+import Button from '@mui/material/Button'
+
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
@@ -8,6 +10,8 @@ import { LineChart } from '@mui/x-charts/LineChart';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { cyan } from '@mui/material/colors';
+
+import { Link } from "react-router-dom";
 
 const theme = createTheme({
     palette: {
@@ -180,14 +184,19 @@ export default function Home() {
         <div className="App">
             <header className="App-header">
                 <h1>STOCK DASHBOARD RAAH</h1>
-
-                <div className="Row">
-                    <ThemeProvider theme={theme}>
+                <ThemeProvider theme={theme}>
+                    <div className="Help_button">
+                        <Link to="/Help">
+                            <Button color="secondary" variant="outlined"> Help </Button>
+                        </Link>
+                    </div>
+                    <div className="Row">
                         <MakeButton type={"stock"} value={stock} setButton={setStock} />
                         <MakeChart dates={dates} data={stocks} predictions={predictions} type={stock} />
                         <MakeButton type={"predict"} value={type} setButton={setType} />
-                    </ThemeProvider>
-                </div>
+
+                    </div>
+                </ThemeProvider>
                 <h3>General Parameters</h3>
                 <ul>
                     Start Date:     End Date:
@@ -200,7 +209,7 @@ export default function Home() {
 
                 <h3>Model Results</h3>
                 <p>percent error (MAPE): {accuracy}%</p>
-            </header>
+            </header >
         </div >
     );
 }
