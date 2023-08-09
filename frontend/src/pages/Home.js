@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react';
 import '../App.css';
 
-import Button from '@mui/material/Button'
+import { Link } from "react-router-dom";
 
+import Button from '@mui/material/Button'
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { LineChart } from '@mui/x-charts/LineChart';
 
+import { DateField } from '@mui/x-date-pickers/DateField';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { cyan } from '@mui/material/colors';
 
-import { Link } from "react-router-dom";
+const dayjs = require('dayjs');
+var isBetween = require('dayjs/plugin/isBetween');
+dayjs.extend(isBetween);
 
 const theme = createTheme({
     palette: {
@@ -23,11 +30,10 @@ const theme = createTheme({
     },
 });
 
-
 function MakeChart({ data, predictions, dates, type }) {
 
     let series;
-    if (predictions == null || predictions.length == 1) {
+    if (predictions === null || predictions.length === 1) {
         series =
             [{
                 label: type,
@@ -136,6 +142,36 @@ function MakeButton({ type, value, setButton }) {
     )
 }
 
+function MakeDateRange({ start, setStart, end, setEnd }) {
+
+    return (
+        <div>
+            <DateField
+                label="Start Date"
+                value={start}
+                onChange={(newValue) => {
+                    if (newValue.isBetween('1999-03-01', end)) {
+                        setStart(newValue)
+                    }
+                }}
+                format="MM-DD-YYYY"
+                minDate="1999-03-01"
+                maxDate={end} />
+
+            <DateField label="End Date"
+                value={end}
+                onChange={(newValue) => {
+                    if (newValue.isBetween(start, '2018-03-01')) {
+                        setEnd(newValue)
+                    }
+                }}
+                format="MM-DD-YYYY"
+                minDate={start}
+                maxDate="2018-03-01" />
+        </div>
+    )
+}
+
 export default function Home() {
     let [dates, setDates] = useState([1]);
     let [stocks, setStocks] = useState([1]);
@@ -143,14 +179,20 @@ export default function Home() {
     let [stock, setStock] = useState("AAPL");
     let [type, setType] = useState("");
     let [accuracy, setAccuracy] = useState(0);
-    let [start, setStart] = useState("2006-01-01")
-    let [end, setEnd] = useState("2008-01-01")
+    let [start, setStart] = useState(dayjs("2006-01-01"))
+    let [middle, setMiddle] = useState(dayjs("2007-01-01"))
+    let [end, setEnd] = useState(dayjs("2008-01-01"))
 
     useEffect(function () {
 
+        function to_string(date) {
+            return date.toISOString().slice(0, 10);
+        }
+
         setDates([1]);
         setStocks([1]);
-        fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/" + stock + "/" + start + "/" + end)
+        console.log(to_string(start) + "--" + to_string(end));
+        fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/" + stock + "/" + to_string(start) + "/" + to_string(end))
             .then((response) => {
                 return response.json();
             }).then((parsed_response) => {
@@ -164,7 +206,7 @@ export default function Home() {
 
         if (type === "Monte_Carlo") {
             setPredictions([1]);
-            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/" + start + "/2007-01-01/" + end)
+            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/" + to_string(start) + "/" + to_string(middle) + "/" + to_string(end))
                 .then((response) => {
                     return response.json();
                 }).then((parsed_response) => {
@@ -183,32 +225,45 @@ export default function Home() {
     return (
         <div className="App">
             <header className="App-header">
-                <h1>STOCK DASHBOARD RAAH</h1>
+                <h1>SIMBOOOOST 🚀🚀🚀🚀🚀🚀 </h1>
                 <ThemeProvider theme={theme}>
-                    <div className="Help_button">
-                        <Link to="/Help">
-                            <Button color="secondary" variant="outlined"> Help </Button>
-                        </Link>
-                    </div>
-                    <div className="Row">
-                        <MakeButton type={"stock"} value={stock} setButton={setStock} />
-                        <MakeChart dates={dates} data={stocks} predictions={predictions} type={stock} />
-                        <MakeButton type={"predict"} value={type} setButton={setType} />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <div className="Help_button">
+                            <Link to="/Help">
+                                <Button color="secondary" variant="outlined"> Help </Button>
+                            </Link>
+                        </div>
+                        <div className="Row">
+                            <MakeButton type={"stock"} value={stock} setButton={setStock} />
+                            <MakeChart dates={dates} data={stocks} predictions={predictions} type={stock} />
+                            <MakeButton type={"predict"} value={type} setButton={setType} />
+                        </div>
 
-                    </div>
+                        <h3>General Parameters</h3>
+                        <div className="Row">
+                            <MakeDateRange start={start} setStart={setStart} end={end} setEnd={setEnd} />
+                        </div>
+
+
+                        <h3>Model Parameters</h3>
+                        <p> Monte Carlo: </p>
+                        <DateField label="Prediction Start Date"
+                            value={middle}
+                            onChange={(newValue) => {
+                                if (newValue.isBetween(start, end)) {
+                                    setMiddle(newValue)
+                                }
+                            }}
+                            format="MM-DD-YYYY"
+                            minDate={start}
+                            maxDate={end} />
+                        <p> Black scholes: [many options] </p>
+
+                        <h3>Model Results</h3>
+                        <p>percent error (MAPE): {accuracy}%</p>
+                    </LocalizationProvider>
                 </ThemeProvider>
-                <h3>General Parameters</h3>
-                <ul>
-                    Start Date:     End Date:
-                </ul>
-                <h3>Model Parameters</h3>
-                <ul>
-                    <li> Monte Carlo: [middle date] </li>
-                    <li> Black scholes: [many options] </li>
-                </ul>
 
-                <h3>Model Results</h3>
-                <p>percent error (MAPE): {accuracy}%</p>
             </header >
         </div >
     );

@@ -43,6 +43,7 @@ let handler ~body:_ _sock req =
       |> Stock_data.jsonaf_of_t
       |> Jsonaf.to_string
     in
+    print_endline "done :)";
     Server.respond_string ~headers:header response
   | [ _
     ; "Monte_Carlo"
@@ -71,8 +72,10 @@ let handler ~body:_ _sock req =
       |> Monte_Carlo_data.jsonaf_of_t
       |> Jsonaf.to_string
     in
+    print_endline "done :)";
     Server.respond_string ~headers:header response
   | _ ->
+    print_endline "not found :(";
     Server.respond_string
       ~headers:header
       ~status:`Not_found
