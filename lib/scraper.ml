@@ -192,6 +192,7 @@ let main ~(prediction_type : predictions) =
     return (Stock predictions)
   | Options model_with_params ->
     let%bind predictions = main_options ~model_type:model_with_params in
+    print_s [%message (predictions : float * float * float)];
     return (Options predictions)
 ;;
 
@@ -210,11 +211,22 @@ let command =
        let black_scholes_params =
          { Black_Scholes.stock = "TSLA"
          ; interest_rate = 0.05
-         ; strike_price = 200.
+         ; strike_price = 100.
          ; start_date = "2017-01-01"
          ; expiration_date = "2017-02-01"
          ; historical_date_start = "2016-01-01"
-         ; call_put = Call
+         ; call_put = Put
+         }
+       in
+       let binomial_params =
+         { Binomial_Pricing.call_put = Put
+         ; start_date = "2017-01-01"
+         ; expiration_date = "2017-02-01"
+         ; historical_date_start = "2016-01-01"
+         ; strike_price = 100.
+         ; stock = "TSLA"
+         ; n_time_steps = 5
+         ; interest_rate = 0.05
          }
        in
        let%bind _data =
@@ -222,6 +234,9 @@ let command =
        in
        let%bind _data_black_scholes =
          main ~prediction_type:(Options (Black_Scholes black_scholes_params))
+       in
+       let%bind _data_binomial_pricing =
+         main ~prediction_type:(Options (Binomial_Pricing binomial_params))
        in
        return ())
 ;;
