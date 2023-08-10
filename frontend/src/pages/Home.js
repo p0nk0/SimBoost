@@ -13,6 +13,9 @@ import { DateField } from '@mui/x-date-pickers/DateField';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -89,6 +92,7 @@ function MakeButton({ type, value, setButton }) {
         }
     }
     let buttons;
+    let orientation;
     if (type === "stock") {
         buttons = [
             <ToggleButton
@@ -122,14 +126,28 @@ function MakeButton({ type, value, setButton }) {
                 key="XOM"
                 value="XOM">XOM</ToggleButton>,
         ];
+        orientation = "vertical";
     } else if (type === "predict") {
         buttons = [<ToggleButton
             key="Monte_Carlo"
             value="Monte_Carlo">Monte Carlo</ToggleButton>,
         <ToggleButton
             key="Black_Scholes"
-            value="Black_Scholes">Black-Scholes</ToggleButton>,]
-    } else {
+            value="Black_Scholes">Black-Scholes</ToggleButton>,
+        <ToggleButton
+            key="Binomial_Pricer"
+            value="Binomial_Pricer">Binomial Pricer</ToggleButton>]
+        orientation = "vertical";
+    } else if (type === "call_put") {
+        buttons = [<ToggleButton
+            key="call"
+            value="call">Call</ToggleButton>,
+        <ToggleButton
+            key="put"
+            value="put">Put</ToggleButton>]
+        orientation = "horizontal";
+    }
+    else {
         buttons = []
     }
 
@@ -138,7 +156,7 @@ function MakeButton({ type, value, setButton }) {
             color="primary"
             value={value}
             exclusive
-            orientation="vertical"
+            orientation={orientation}
             onChange={handleChange}
         >{buttons}</ToggleButtonGroup>
     )
@@ -194,10 +212,14 @@ export default function Home() {
     let [accuracy, setAccuracy] = useState(0);
 
     // black-scholes specific variables
-    let [strike, setStrike] = useState(0);
-    let [interest, setInterest] = useState(0);
-    let [call_put, setCall_Put] = useState("call"); // this will always be call or put, lowercase
+    let [strike, setStrike] = useState(100);
+    let [interest, setInterest] = useState(5);
+    let [callPut, setCallPut] = useState("call"); // this will always be call or put, lowercase
 
+    // binomial pricer specific variables
+    let [timesteps, setTimesteps] = useState(10);
+
+    // for dynamic loading
     let [loading, setLoading] = useState(false);
 
 
@@ -226,29 +248,32 @@ export default function Home() {
             }).catch((error) => console.log(error));
 
 
-
-        if (type === "Monte_Carlo") {
+        if ((new Set(["Monte_Carlo", "Black_Scholes", "Binomial_Pricer"])).has(type)) {
             setLoading(true);
-            setPredictions([1]);
-            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/" + to_string(start) + "/" + to_string(middle) + "/" + to_string(end))
-                .then((response) => {
-                    return response.json();
-                }).then((parsed_response) => {
-                    setPredictions(parsed_response.predictions);
-                    setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
-                }).catch((error) => console.log(error)).finally((_) => setLoading(false));
-        }
 
-        /* elif (type === "Black_Scholes") {
-            setPredictions([1]);
-            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Black_Scholes/" + stock + "/" + strike + "/" + interest + "/" + to_string(middle) + "/" + to_string(end) + "/" + to_string(start) + "/" + )
-                .then((response) => {
-                    return response.json();
-                }).then((parsed_response) => {
-                    setPredictions(parsed_response.predictions);
-                    setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
-                }).catch((error) => console.log(error));
-        } */
+            if (type === "Monte_Carlo") {
+                setPredictions([1]);
+                fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/" + to_string(start) + "/" + to_string(middle) + "/" + to_string(end))
+                    .then((response) => {
+                        return response.json();
+                    }).then((parsed_response) => {
+                        setPredictions(parsed_response.predictions);
+                        setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
+                    }).catch((error) => console.log(error))
+                    .finally((_) => setLoading(false));
+            }
+
+            /* elif (type === "Black_Scholes") {
+                setPredictions([1]);
+                fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Black_Scholes/" + stock + "/" + strike + "/" + interest + "/" + to_string(middle) + "/" + to_string(end) + "/" + to_string(start) + "/" + )
+                    .then((response) => {
+                        return response.json();
+                    }).then((parsed_response) => {
+                        setPredictions(parsed_response.predictions);
+                        setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
+                    }).catch((error) => console.log(error));
+            } */
+        }
 
         if (type == null) {
             setPredictions(([1]))
@@ -275,13 +300,11 @@ export default function Home() {
                         </div>
 
                         <h3>General Parameters</h3>
-                        <div className="Row">
-                            <MakeDateRange start={start} setStart={setStart} end={end} setEnd={setEnd} />
-                        </div>
+                        <MakeDateRange start={start} setStart={setStart} end={end} setEnd={setEnd} />
 
 
                         <h3>Model Parameters</h3>
-                        <p> Monte Carlo: &nbsp;
+                        <div>
                             <DateField label="Prediction Start Date"
                                 value={middle}
                                 onChange={(newValue) => {
@@ -291,11 +314,49 @@ export default function Home() {
                                 }}
                                 format="MM-DD-YYYY"
                                 minDate={start}
-                                maxDate={end} /> </p>
-                        <p> Black scholes: &nbsp;[many options] </p>
+                                maxDate={end} />
+                            <TextField label="Strike Price"
+                                value={strike}
+                                type="number"
+                                onChange={(newValue) => {
+                                    const { value } = newValue.target;
+                                    if (parseFloat(value) > 0) {
+                                        setStrike(value)
+                                    }
+                                }}
+                                InputProps={{
+                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                }}
+                            />
+                            <TextField label="Interest Rate"
+                                value={interest}
+                                type="number"
+                                onChange={(newValue) => {
+                                    const { value } = newValue.target;
+                                    if (parseFloat(value) > 0) {
+                                        setInterest(value)
+                                    }
+                                }}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                }}
+                            />
+                            <MakeButton type={"call_put"} value={callPut} setButton={setCallPut} />
+                            <TextField label="Number of Timesteps"
+                                value={timesteps}
+                                type="number"
+                                onChange={(newValue) => {
+                                    const { value } = newValue.target;
+                                    if (parseInt(value) > 0) {
+                                        setTimesteps(value)
+                                    }
+                                }}
+                            />
+                        </div>
+
                         <h3>Model Results</h3>
                         <p>percent error (MAPE): {accuracy}%</p>
-                        <p>percent error (MAPE): {accuracy}%</p>
+                        <p>price at expiration 0, recommended price 0, pnl $0</p>
                     </LocalizationProvider>
                 </ThemeProvider>
 
