@@ -119,10 +119,15 @@ let handler ~body:_ _sock req =
     let%bind _response =
       Scraper.main ~prediction_type:(Options (Black_Scholes params))
     in
+    print_endline "hello???";
     let _response =
       match _response with
-      | Options n -> n
-      | _ -> failwith "Black Scholes received incorrect input?????"
+      | Options n ->
+        print_endline "whee";
+        n
+      | _ ->
+        print_endline "very bad";
+        failwith "Black Scholes received incorrect input?????"
     in
     let response =
       Black_Scholes_data.of_arrays _response
@@ -145,7 +150,7 @@ let start_server port () =
     "Try 'curl http://localhost:%d/test?hello=xyz'\n%!"
     port;
   Server.create
-    ~on_handler_error:`Ignore
+    ~on_handler_error:`Raise
     (Async.Tcp.Where_to_listen.of_port port)
     handler
   >>= fun _server -> Deferred.never ()

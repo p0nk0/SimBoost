@@ -210,12 +210,12 @@ let command =
          }
        in
        let black_scholes_params =
-         { Black_Scholes.stock = "TSLA"
+         { Black_Scholes.stock = "AAPL"
          ; interest_rate = 0.05
          ; strike_price = 100.
-         ; start_date = "2017-01-01"
-         ; expiration_date = "2017-02-01"
-         ; historical_date_start = "2016-01-01"
+         ; start_date = "2007-01-01"
+         ; expiration_date = "2008-01-02"
+         ; historical_date_start = "2006-01-01"
          ; call_put = Put
          }
        in
