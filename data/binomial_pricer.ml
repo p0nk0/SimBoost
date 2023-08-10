@@ -6,15 +6,24 @@ let create_arrays n =
   Array.mapi m_list ~f:(fun idx _elt -> float_of_int idx)
 ;;
 
-let main ~strike_price ~interest_rate ~number_of_time_steps =
-  (* let spot_price = Array.get stock_prices (Array.length stock_prices - 1)
-     in *)
-  let spot_price = 100. in
-  (* let volatility = Options.volatility ~prices:stock_prices in *)
-  let volatility = log 1.2 in
-  (* let time_till_expiry = Options.time_till_expiration ~start_date
-     ~end_date:expiration_date in *)
-  let time_till_expiry = 1. in
+let main
+  ~strike_price
+  ~stock_prices
+  ~interest_rate
+  ~number_of_time_steps
+  ~call_put
+  ~start_date
+  ~expiration_date
+  ~expiration_price
+  =
+  let spot_price = Array.get stock_prices (Array.length stock_prices - 1) in
+  (* let spot_price = 100. in *)
+  let volatility = Options.volatility ~prices:stock_prices in
+  (* let volatility = log 1.2 in *)
+  let time_till_expiry =
+    Options.time_till_expiration ~start_date ~end_date:expiration_date
+  in
+  (* let time_till_expiry = 1. in *)
   let time_step = time_till_expiry /. float_of_int number_of_time_steps in
   let u = exp (volatility *. sqrt time_step) in
   let d = 1. /. u in
@@ -31,9 +40,17 @@ let main ~strike_price ~interest_rate ~number_of_time_steps =
   let num_steps = float_of_int number_of_time_steps in
   Array.iter m_list ~f:(fun curr_m ->
     let new_elt =
-      Float.max
-        ((spot_price *. (u ** ((2. *. curr_m) -. num_steps))) -. strike_price)
-        0.0
+      match call_put with
+      | Options.Contract_type.Call ->
+        Float.max
+          ((spot_price *. (u ** ((2. *. curr_m) -. num_steps)))
+           -. strike_price)
+          0.0
+      | Put ->
+        Float.max
+          (strike_price
+           -. (spot_price *. (u ** ((2. *. curr_m) -. num_steps))))
+          0.0
     in
     let m_idx = int_of_float curr_m in
     tree.(number_of_time_steps).(m_idx) <- new_elt);
@@ -55,5 +72,22 @@ let main ~strike_price ~interest_rate ~number_of_time_steps =
         in
         print_s [%message (new_elt : float)];
         tree.(curr_k).(idx_m) <- new_elt)));
-  tree.(0).(0)
+  let option_price = tree.(0).(0) in
+  match call_put with
+  | Options.Contract_type.Call ->
+    let pnl =
+      Accuracy.options_call
+        ~ending_stock_price:expiration_price
+        ~call_option_price:option_price
+        ~strike_price
+    in
+    expiration_price, option_price, pnl
+  | Put ->
+    let pnl =
+      Accuracy.options_put
+        ~ending_stock_price:expiration_price
+        ~put_option_price:option_price
+        ~strike_price
+    in
+    expiration_price, -1. *. option_price, pnl
 ;;

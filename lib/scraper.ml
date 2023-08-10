@@ -24,13 +24,24 @@ module Black_Scholes = struct
     }
 end
 
-(* module Binomial_Pricing = struct type t = { stock : string ; strike_price
-   : float ; interest_rate : float ; start_date : string ; expiration_date :
-   string ; historical_date_start : string ; call_put :
-   Source.Options.Contract_type.t } end *)
+module Binomial_Pricing = struct
+  type t =
+    { stock : string
+    ; strike_price : float
+    ; interest_rate : float
+    ; start_date : string
+    ; expiration_date : string
+    ; historical_date_start : string
+    ; call_put : Source.Options.Contract_type.t
+    ; n_time_steps : int
+    }
+end
 
 type stock_models = Monte_Carlo of Monte_Carlo.t
-type option_models = Black_Scholes of Black_Scholes.t
+
+type option_models =
+  | Black_Scholes of Black_Scholes.t
+  | Binomial_Pricing of Binomial_Pricing.t
 
 type predictions =
   | Stock of stock_models
@@ -63,9 +74,6 @@ let get ~start_date ~end_date ~stock =
   let%bind body = Cohttp_async.Body.to_string body in
   return body
 ;;
-
-(*Error handling for appropriate stock name and beginning / ending dates -->
-  and then calling and choosing the appropriate models from here*)
 
 (*Handles all of the models for stock prediction*)
 let main_stock ~model_type =
@@ -141,6 +149,39 @@ let main_options ~model_type =
         ~call_put:params.call_put
     in
     return predicted_option_price
+  | Binomial_Pricing params ->
+    let%bind historical_stock_data =
+      get
+        ~start_date:params.historical_date_start
+        ~end_date:params.start_date
+        ~stock:params.stock
+    in
+    let _hist_dates, hist_stock_prices =
+      Source.Data.fetch_data_as_array
+        ~retrieved_stock_data:historical_stock_data
+    in
+    let%bind expiration_data =
+      get
+        ~start_date:params.expiration_date
+        ~end_date:params.expiration_date
+        ~stock:params.stock
+    in
+    let _, expiration_stock_price =
+      Source.Data.fetch_data_as_array ~retrieved_stock_data:expiration_data
+    in
+    let expiration_stock_price = Array.get expiration_stock_price 0 in
+    let predicted_option_price =
+      Source.Binomial_pricer.main
+        ~strike_price:params.strike_price
+        ~interest_rate:params.interest_rate
+        ~stock_prices:hist_stock_prices
+        ~number_of_time_steps:params.n_time_steps
+        ~call_put:params.call_put
+        ~start_date:params.start_date
+        ~expiration_date:params.expiration_date
+        ~expiration_price:expiration_stock_price
+    in
+    return predicted_option_price
 ;;
 
 (*This should eventually be the only function in the main module*)
@@ -182,16 +223,6 @@ let command =
        let%bind _data_black_scholes =
          main ~prediction_type:(Options (Black_Scholes black_scholes_params))
        in
-       let number_of_time_steps = 3 in
-       let strike_price = 100. in
-       let interest_rate = 0. in
-       let option_price =
-         Source.Binomial_pricer.main
-           ~strike_price
-           ~interest_rate
-           ~number_of_time_steps
-       in
-       print_s [%message (option_price : float)];
        return ())
 ;;
 (* let%bind response = Cohttp_async.Client.get uri in () *)
