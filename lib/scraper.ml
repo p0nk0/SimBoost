@@ -22,6 +22,7 @@ module Black_Scholes = struct
     ; historical_date_start : string
     ; call_put : Source.Options.Contract_type.t
     }
+  [@@deriving sexp_of]
 end
 
 module Binomial_Pricing = struct

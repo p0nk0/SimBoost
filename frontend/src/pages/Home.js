@@ -263,23 +263,23 @@ export default function Home() {
                     .finally((_) => setLoading(false));
             }
 
-            /* elif (type === "Black_Scholes") {
+            else if (type === "Black_Scholes") {
                 setPredictions([1]);
-                fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Black_Scholes/" + stock + "/" + strike + "/" + interest + "/" + to_string(middle) + "/" + to_string(end) + "/" + to_string(start) + "/" + )
+                fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Black_Scholes/" + stock + "/" + strike + "/" + interest + "/" + to_string(middle) + "/" + to_string(end) + "/" + to_string(start) + "/" + callPut)
                     .then((response) => {
                         return response.json();
                     }).then((parsed_response) => {
-                        setPredictions(parsed_response.predictions);
-                        setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
-                    }).catch((error) => console.log(error));
-            } */
+                        console.log(parsed_response)
+                    }).catch((error) => console.log(error))
+                    .finally((_) => setLoading(false));
+            }
         }
 
         if (type == null) {
             setPredictions(([1]))
         }
 
-    }, [start, end, type, stock])
+    }, [start, middle, end, type, stock, strike, interest, callPut, timesteps])
 
 
     return (

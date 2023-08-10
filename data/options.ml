@@ -5,6 +5,7 @@ module Contract_type = struct
   type t =
     | Call
     | Put
+  [@@deriving sexp_of]
 end
 
 let calc_log_returns ~prices =

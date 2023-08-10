@@ -56,7 +56,7 @@ let handler ~body:_ _sock req =
       |> Stock_data.jsonaf_of_t
       |> Jsonaf.to_string
     in
-    print_endline "done :)";
+    print_endline "Stock complete :)";
     Server.respond_string ~headers:header response
   | [ _
     ; "Monte_Carlo"
@@ -85,7 +85,7 @@ let handler ~body:_ _sock req =
       |> Monte_Carlo_data.jsonaf_of_t
       |> Jsonaf.to_string
     in
-    print_endline "done :)";
+    print_endline "Monte Carlo complete :)";
     Server.respond_string ~headers:header response
   | [ _
     ; "Black_Scholes"
@@ -101,8 +101,8 @@ let handler ~body:_ _sock req =
     let interest_rate = float_of_string interest_rate in
     let call_put =
       match call_put with
-      | "Call" -> Source.Options.Contract_type.Call
-      | "Put" -> Source.Options.Contract_type.Put
+      | "call" -> Source.Options.Contract_type.Call
+      | "put" -> Source.Options.Contract_type.Put
       | _ -> Source.Options.Contract_type.Call
     in
     let params =
@@ -115,6 +115,7 @@ let handler ~body:_ _sock req =
       ; call_put
       }
     in
+    print_s [%message (params : Scraper.Black_Scholes.t)];
     let%bind _response =
       Scraper.main ~prediction_type:(Options (Black_Scholes params))
     in
@@ -128,7 +129,7 @@ let handler ~body:_ _sock req =
       |> Black_Scholes_data.jsonaf_of_t
       |> Jsonaf.to_string
     in
-    print_endline "done :)";
+    print_endline "Black-Scholes complete :)";
     Server.respond_string ~headers:header response
   | _ ->
     print_endline "not found :(";

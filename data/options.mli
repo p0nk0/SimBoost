@@ -5,6 +5,7 @@ module Contract_type : sig
   type t =
     | Call
     | Put
+  [@@deriving sexp_of]
 end
 
 val volatility : prices:float array -> float
