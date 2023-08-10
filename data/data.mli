@@ -10,3 +10,5 @@ val pad_array_with_zeros
   :  current_array:float array
   -> num_zeros_to_add:int
   -> float array
+
+val get_valid_date : date:string -> Date.t

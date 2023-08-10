@@ -129,16 +129,23 @@ let main_options ~model_type =
       Source.Data.fetch_data_as_array
         ~retrieved_stock_data:historical_stock_data
     in
-    let%bind expiration_data =
-      get
-        ~start_date:params.expiration_date
-        ~end_date:params.expiration_date
-        ~stock:params.stock
+    let%bind expiration_stock_price =
+      Deferred.repeat_until_finished params.expiration_date (fun date ->
+        let%map expiration_data =
+          get ~start_date:date ~end_date:date ~stock:params.stock
+        in
+        let _, expiration_stock_price =
+          Source.Data.fetch_data_as_array
+            ~retrieved_stock_data:expiration_data
+        in
+        if Array.is_empty expiration_stock_price
+        then (
+          let new_date = Source.Data.get_valid_date ~date in
+          let new_date = Date.to_string new_date in
+          `Repeat new_date)
+        else `Finished (Array.get expiration_stock_price 0)
+        (*Check if the size of the array is zero*))
     in
-    let _, expiration_stock_price =
-      Source.Data.fetch_data_as_array ~retrieved_stock_data:expiration_data
-    in
-    let expiration_stock_price = Array.get expiration_stock_price 0 in
     let predicted_option_price =
       Source.Black_scholes.main
         ~stock_prices:hist_stock_prices
@@ -161,16 +168,23 @@ let main_options ~model_type =
       Source.Data.fetch_data_as_array
         ~retrieved_stock_data:historical_stock_data
     in
-    let%bind expiration_data =
-      get
-        ~start_date:params.expiration_date
-        ~end_date:params.expiration_date
-        ~stock:params.stock
+    let%bind expiration_stock_price =
+      Deferred.repeat_until_finished params.expiration_date (fun date ->
+        let%map expiration_data =
+          get ~start_date:date ~end_date:date ~stock:params.stock
+        in
+        let _, expiration_stock_price =
+          Source.Data.fetch_data_as_array
+            ~retrieved_stock_data:expiration_data
+        in
+        if Array.is_empty expiration_stock_price
+        then (
+          let new_date = Source.Data.get_valid_date ~date in
+          let new_date = Date.to_string new_date in
+          `Repeat new_date)
+        else `Finished (Array.get expiration_stock_price 0)
+        (*Check if the size of the array is zero*))
     in
-    let _, expiration_stock_price =
-      Source.Data.fetch_data_as_array ~retrieved_stock_data:expiration_data
-    in
-    let expiration_stock_price = Array.get expiration_stock_price 0 in
     let predicted_option_price =
       Source.Binomial_pricer.main
         ~strike_price:params.strike_price
@@ -214,16 +228,16 @@ let command =
          ; interest_rate = 0.05
          ; strike_price = 300.
          ; start_date = "2007-01-01"
-         ; expiration_date = "2008-01-02"
+         ; expiration_date = "2008-01-01"
          ; historical_date_start = "2006-01-01"
          ; call_put = Put
          }
        in
        let binomial_params =
          { Binomial_Pricing.call_put = Put
-         ; start_date = "2017-01-01"
-         ; expiration_date = "2017-02-01"
-         ; historical_date_start = "2016-01-01"
+         ; start_date = "2007-01-01"
+         ; expiration_date = "2008-01-01"
+         ; historical_date_start = "2006-01-01"
          ; strike_price = 200.
          ; stock = "AAPL"
          ; n_time_steps = 5

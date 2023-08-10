@@ -33,3 +33,8 @@ let pad_array_with_zeros ~(current_array : float array) ~num_zeros_to_add =
   let new_array = Array.append zero_array current_array in
   new_array
 ;;
+
+let get_valid_date ~date =
+  let date = Date.of_string date in
+  Date.previous_weekday date
+;;
