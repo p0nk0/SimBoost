@@ -17,13 +17,10 @@ let main
   ~expiration_price
   =
   let spot_price = Array.get stock_prices (Array.length stock_prices - 1) in
-  (* let spot_price = 100. in *)
   let volatility = Options.volatility ~prices:stock_prices in
-  (* let volatility = log 1.2 in *)
   let time_till_expiry =
     Options.time_till_expiration ~start_date ~end_date:expiration_date
   in
-  (* let time_till_expiry = 1. in *)
   let time_step = time_till_expiry /. float_of_int number_of_time_steps in
   let u = exp (volatility *. sqrt time_step) in
   let d = 1. /. u in
@@ -53,7 +50,6 @@ let main
     in
     let m_idx = int_of_float curr_m in
     tree.(number_of_time_steps).(m_idx) <- new_elt);
-  print_s [%message (tree : float array array)];
   let k_list = Array.rev k_list in
   let k_list = Array.sub k_list ~pos:1 ~len:(Array.length k_list - 1) in
   Array.iteri k_list ~f:(fun _idx_k curr_k ->
@@ -68,7 +64,6 @@ let main
         in
         tree.(curr_k).(idx_m) <- new_elt)));
   let option_price = tree.(0).(0) in
-  print_s [%message (tree : float array array)];
   match call_put with
   | Options.Contract_type.Call ->
     let pnl =

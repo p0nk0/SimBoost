@@ -212,7 +212,7 @@ let command =
        let black_scholes_params =
          { Black_Scholes.stock = "AAPL"
          ; interest_rate = 0.05
-         ; strike_price = 100.
+         ; strike_price = 300.
          ; start_date = "2007-01-01"
          ; expiration_date = "2008-01-02"
          ; historical_date_start = "2006-01-01"
@@ -224,8 +224,8 @@ let command =
          ; start_date = "2017-01-01"
          ; expiration_date = "2017-02-01"
          ; historical_date_start = "2016-01-01"
-         ; strike_price = 100.
-         ; stock = "TSLA"
+         ; strike_price = 200.
+         ; stock = "AAPL"
          ; n_time_steps = 5
          ; interest_rate = 0.05
          }
@@ -241,4 +241,3 @@ let command =
        in
        return ())
 ;;
-(* let%bind response = Cohttp_async.Client.get uri in () *)
