@@ -8,4 +8,14 @@ _By: Sonica Prakash and Taylor Roberts_
 
 ### Current Models 
 
+#### Options
+
+##### Black-Scholes 
+
+##### Binomial Pricing 
+
+#### Stocks 
+
+##### Monte Carlo 
+
 
