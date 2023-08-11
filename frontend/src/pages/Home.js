@@ -3,6 +3,11 @@ import '../App.css';
 
 import { Link } from "react-router-dom";
 
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { cyan } from '@mui/material/colors';
+
+import CircularProgress from '@mui/material/CircularProgress';
+
 import Button from '@mui/material/Button'
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -16,10 +21,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import CircularProgress from '@mui/material/CircularProgress';
-
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { cyan } from '@mui/material/colors';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 
 const dayjs = require('dayjs');
 var isBetween = require('dayjs/plugin/isBetween');
@@ -206,7 +213,7 @@ export default function Home() {
     // what dates we're asking for
     let [start, setStart] = useState(dayjs("2006-01-01"))
     let [end, setEnd] = useState(dayjs("2008-01-01"))
-    let [middle, setMiddle] = useState(dayjs("2007-01-01"))
+    let [middle, setMiddle] = useState(dayjs("2007-01-01")) // for predictions
 
     // monte carlo specific variables
     let [accuracy, setAccuracy] = useState(0);
@@ -219,8 +226,14 @@ export default function Home() {
     // binomial pricer specific variables
     let [timesteps, setTimesteps] = useState(10);
 
+    // options results (black-scholes and binomial pricer)
+    let [expiration, setExpiration] = useState(0);
+    let [contract, setContract] = useState(0);
+    let [pnl, setPnl] = useState(0);
+
     // for dynamic loading
-    let [loading, setLoading] = useState(false);
+    let [graphLoading, setGraphLoading] = useState(false);
+    let [resultsLoading, setResultsLoading] = useState(false);
 
 
     useEffect(function () {
@@ -230,10 +243,12 @@ export default function Home() {
             return date.toISOString().slice(0, 10);
         }
 
+        setPredictions(([1]))
+        setExpiration(0);
+        setContract(0);
+        setPnl(0);
         setDates([1]);
         setStocks([1]);
-
-
 
         fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/stock/" + stock + "/" + to_string(start) + "/" + to_string(end))
             .then((response) => {
@@ -247,37 +262,44 @@ export default function Home() {
                 setStocks(parsed_response.stocks);
             }).catch((error) => console.log(error));
 
-
-        if ((new Set(["Monte_Carlo", "Black_Scholes", "Binomial_Pricer"])).has(type)) {
-            setLoading(true);
-
-            if (type === "Monte_Carlo") {
-                setPredictions([1]);
-                fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/" + to_string(start) + "/" + to_string(middle) + "/" + to_string(end))
-                    .then((response) => {
-                        return response.json();
-                    }).then((parsed_response) => {
-                        setPredictions(parsed_response.predictions);
-                        setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
-                    }).catch((error) => console.log(error))
-                    .finally((_) => setLoading(false));
-            }
-
-            else if (type === "Black_Scholes") {
-                setPredictions([1]);
-                fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Black_Scholes/" + stock + "/" + strike + "/" + interest + "/" + to_string(middle) + "/" + to_string(end) + "/" + to_string(start) + "/" + callPut)
-                    .then((response) => {
-                        return response.json();
-                    }).then((parsed_response) => {
-                        console.log(parsed_response)
-                    }).catch((error) => console.log(error))
-                    .finally((_) => setLoading(false));
-            }
+        if (type === "Monte_Carlo") {
+            setGraphLoading(true);
+            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Monte_Carlo/" + stock + "/" + to_string(start) + "/" + to_string(middle) + "/" + to_string(end))
+                .then((response) => {
+                    return response.json();
+                }).then((parsed_response) => {
+                    setPredictions(parsed_response.predictions);
+                    setAccuracy(Math.round(parsed_response.accuracy * 10000) / 100);
+                }).catch((error) => console.log(error))
+                .finally((_) => setGraphLoading(false));
         }
 
-        if (type == null) {
-            setPredictions(([1]))
+        else if (type === "Black_Scholes") {
+            setResultsLoading(true);
+            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Black_Scholes/" + stock + "/" + strike + "/" + (interest / 100) + "/" + to_string(middle) + "/" + to_string(end) + "/" + to_string(start) + "/" + callPut)
+                .then((response) => {
+                    return response.json();
+                }).then((parsed_response) => {
+                    setExpiration(parsed_response.stock_expiration_price);
+                    setContract(Math.round(parsed_response.option_contract_price * 100) / 100);
+                    setPnl(Math.round(parsed_response.pnl * 100) / 100);
+                }).catch((error) => console.log(error))
+                .finally((_) => setResultsLoading(false));
+
+        } else if (type === "Binomial_Pricer") {
+            setResultsLoading(true);
+            fetch("http://ec2-34-235-103-161.compute-1.amazonaws.com:8181/Binomial_Pricer/" + stock + "/" + strike + "/" + (interest / 100) + "/" + to_string(middle) + "/" + to_string(end) + "/" + to_string(start) + "/" + callPut + "/" + timesteps)
+                .then((response) => {
+                    return response.json();
+                }).then((parsed_response) => {
+                    setExpiration(parsed_response.stock_expiration_price);
+                    setContract(Math.round(parsed_response.option_contract_price * 100) / 100);
+                    setPnl(Math.round(parsed_response.pnl * 100) / 100);
+                }).catch((error) => console.log(error))
+                .finally((_) => setResultsLoading(false));
         }
+
+
 
     }, [start, middle, end, type, stock, strike, interest, callPut, timesteps])
 
@@ -295,7 +317,7 @@ export default function Home() {
                         </div>
                         <div className="Row">
                             <MakeButton type={"stock"} value={stock} setButton={setStock} />
-                            {loading ? <CircularProgress /> : <MakeChart dates={dates} data={stocks} predictions={predictions} type={stock} />}
+                            {graphLoading ? <CircularProgress /> : <MakeChart dates={dates} data={stocks} predictions={predictions} type={stock} />}
                             <MakeButton type={"predict"} value={type} setButton={setType} />
                         </div>
 
@@ -355,8 +377,19 @@ export default function Home() {
                         </div>
 
                         <h3>Model Results</h3>
+
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Dessert (100g serving)</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                            </Table>
+                        </TableContainer>
+
                         <p>percent error (MAPE): {accuracy}%</p>
-                        <p>price at expiration 0, recommended price 0, pnl $0</p>
+                        <p>price at expiration ${expiration}, recommended price ${contract}, pnl ${pnl}</p>
                     </LocalizationProvider>
                 </ThemeProvider>
 

@@ -115,19 +115,13 @@ let handler ~body:_ _sock req =
       ; call_put
       }
     in
-    print_s [%message (params : Scraper.Black_Scholes.t)];
     let%bind _response =
       Scraper.main ~prediction_type:(Options (Black_Scholes params))
     in
-    print_endline "hello???";
     let _response =
       match _response with
-      | Options n ->
-        print_endline "whee";
-        n
-      | _ ->
-        print_endline "very bad";
-        failwith "Black Scholes received incorrect input?????"
+      | Options n -> n
+      | _ -> failwith "Black Scholes received incorrect input?????"
     in
     let response =
       Black_Scholes_data.of_arrays _response
@@ -135,6 +129,52 @@ let handler ~body:_ _sock req =
       |> Jsonaf.to_string
     in
     print_endline "Black-Scholes complete :)";
+    Server.respond_string ~headers:header response
+  | [ _
+    ; "Binomial_Pricer"
+    ; stock
+    ; strike_price
+    ; interest_rate
+    ; start_date
+    ; expiration_date
+    ; historical_date_start
+    ; call_put
+    ; n_time_steps
+    ] ->
+    let strike_price = float_of_string strike_price in
+    let interest_rate = float_of_string interest_rate in
+    let n_time_steps = int_of_string n_time_steps in
+    let call_put =
+      match call_put with
+      | "call" -> Source.Options.Contract_type.Call
+      | "put" -> Source.Options.Contract_type.Put
+      | _ -> Source.Options.Contract_type.Call
+    in
+    let params =
+      { Scraper.Binomial_Pricing.stock
+      ; strike_price
+      ; interest_rate
+      ; start_date
+      ; expiration_date
+      ; historical_date_start
+      ; call_put
+      ; n_time_steps
+      }
+    in
+    let%bind _response =
+      Scraper.main ~prediction_type:(Options (Binomial_Pricing params))
+    in
+    let _response =
+      match _response with
+      | Options n -> n
+      | _ -> failwith "Binomial Pricer is sad"
+    in
+    let response =
+      Black_Scholes_data.of_arrays _response
+      |> Black_Scholes_data.jsonaf_of_t
+      |> Jsonaf.to_string
+    in
+    print_endline "Binomal Pricer complete :)";
     Server.respond_string ~headers:header response
   | _ ->
     print_endline "not found :(";
@@ -146,11 +186,8 @@ let handler ~body:_ _sock req =
 
 let start_server port () =
   Stdlib.Printf.eprintf "Listening for HTTP on port %d\n" port;
-  Stdlib.Printf.eprintf
-    "Try 'curl http://localhost:%d/test?hello=xyz'\n%!"
-    port;
   Server.create
-    ~on_handler_error:`Raise
+    ~on_handler_error:`Ignore
     (Async.Tcp.Where_to_listen.of_port port)
     handler
   >>= fun _server -> Deferred.never ()

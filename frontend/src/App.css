@@ -20,8 +20,10 @@
 .Row {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
-  align-items: center
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 15%;
+  padding-right: 15%;
 }
 
 #paragraph {
