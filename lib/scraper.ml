@@ -1,6 +1,5 @@
 open! Core
 open! Async
-module Stats = Stats
 
 module Monte_Carlo = struct
   type t =
@@ -76,7 +75,6 @@ let get ~start_date ~end_date ~stock =
   return body
 ;;
 
-(*Handles all of the models for stock prediction*)
 let main_stock ~model_type =
   match model_type with
   | Monte_Carlo params ->
@@ -115,7 +113,6 @@ let main_stock ~model_type =
     return (accuracy, predicted_prices)
 ;;
 
-(*Handles all of the models for Black Scholes P*)
 let main_options ~model_type =
   match model_type with
   | Black_Scholes params ->
@@ -143,8 +140,7 @@ let main_options ~model_type =
           let new_date = Source.Data.get_valid_date ~date in
           let new_date = Date.to_string new_date in
           `Repeat new_date)
-        else `Finished (Array.get expiration_stock_price 0)
-        (*Check if the size of the array is zero*))
+        else `Finished (Array.get expiration_stock_price 0))
     in
     let predicted_option_price =
       Source.Black_scholes.main
@@ -182,8 +178,7 @@ let main_options ~model_type =
           let new_date = Source.Data.get_valid_date ~date in
           let new_date = Date.to_string new_date in
           `Repeat new_date)
-        else `Finished (Array.get expiration_stock_price 0)
-        (*Check if the size of the array is zero*))
+        else `Finished (Array.get expiration_stock_price 0))
     in
     let predicted_option_price =
       Source.Binomial_pricer.main
@@ -207,13 +202,12 @@ let main ~(prediction_type : predictions) =
     return (Stock predictions)
   | Options model_with_params ->
     let%bind predictions = main_options ~model_type:model_with_params in
-    print_s [%message (predictions : float * float * float)];
     return (Options predictions)
 ;;
 
 let command =
   Command.async
-    ~summary:"Practice getting cool data"
+    ~summary:"Testing Various Options and Stock Models"
     (let%map_open.Command () = return () in
      fun () ->
        let monte_carlo_params =
@@ -224,9 +218,9 @@ let command =
          }
        in
        let black_scholes_params =
-         { Black_Scholes.stock = "AAPL"
+         { Black_Scholes.stock = "PG"
          ; interest_rate = 0.05
-         ; strike_price = 300.
+         ; strike_price = 100.
          ; start_date = "2007-01-01"
          ; expiration_date = "2008-01-01"
          ; historical_date_start = "2006-01-01"

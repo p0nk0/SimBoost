@@ -1,6 +1,5 @@
 open! Core
 open! Async
-module Stats = Stats
 
 module Monte_Carlo : sig
   type t =
@@ -58,6 +57,7 @@ type results =
 (*Perform all the simulations*)
 val main : prediction_type:predictions -> results Deferred.t
 
+(*Obtaining data from the NASDAQ API*)
 val get
   :  start_date:string
   -> end_date:string

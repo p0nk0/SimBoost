@@ -1,16 +1,6 @@
 open! Core
 open! Owl_base
 
-(* let _calc_log_returns ~prices = let _, log_returns = Array.foldi prices
-   ~init:(0.0, Array.create ~len:0 0.0) ~f:(fun idx (prev_price, returns)
-   curr_asset_price -> if idx = 0 then curr_asset_price, returns else ( let
-   log_return = log (curr_asset_price /. prev_price) in curr_asset_price,
-   Array.append returns [| log_return |])) in log_returns ;;
-
-   let _std_dev_log_returns ~prices = let volatility = Owl_base_stats.std
-   (calc_log_returns ~prices) in print_s [%message (volatility : float)];
-   volatility ;; *)
-
 let _time_till_expiration ~start_date ~end_date =
   let start_date = Date.of_string start_date in
   let end_date = Date.of_string end_date in
@@ -51,7 +41,7 @@ let calculate_d2 ~d1 ~std_log_returns ~time_till_expiry =
   d2
 ;;
 
-(*Ensure that there is a list of stock prices -- error checking module*)
+
 let main
   ~stock_prices
   ~strike_price
@@ -84,7 +74,6 @@ let main
       *. Distributions.cdf_norm ~x:d2
     in
     let call_price = first_formula -. second_formula in
-    print_s [%message (Distributions.cdf_norm ~x:d2 : float)];
     let pnl =
       Accuracy.options_call
         ~ending_stock_price:expiration_price

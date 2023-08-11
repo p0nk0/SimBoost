@@ -3,7 +3,6 @@ open! Owl_base
 
 let num_trading_days = ref 252.
 
-(*Think of contraints on the dates for the data*)
 let total_growth_percentage ~stock_prices : float =
   let last_element = Array.last stock_prices in
   let first_element = Array.get stock_prices 0 in

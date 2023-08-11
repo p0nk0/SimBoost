@@ -1,9 +1,6 @@
 open! Core
 open! Async
-(*Want to have a string of all of the dates and all of the stock prices
-  values as floats*)
 
-(*Test that this function produces the right output*)
 let fetch_data_as_array ~retrieved_stock_data =
   let potential_data = String.split_lines retrieved_stock_data in
   match potential_data with

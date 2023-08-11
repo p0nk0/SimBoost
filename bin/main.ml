@@ -3,7 +3,7 @@ open! Async
 
 let command =
   Command.group
-    ~summary:"Stock dashboard"
+    ~summary:"Stock and Options dashboard"
     [ "server", Interface.UI.command; "scraper", Scraper.command ]
 ;;
 
