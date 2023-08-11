@@ -12,11 +12,19 @@ The models work by using a subset of historical stock data (from the NASDAQ Fina
 
 ### Installation and Setup 
 
+Replace X with your Nasdaq API Key
+Libraries to install 
+Server setup and running the server 
+
 ### Current Models 
 
 #### Options
 
-We use historical stock data to estimate historical volatility of the stock. Use the General Start Date to indicate the start date of the historical data. Use the General End Date to indicate the expiration date of the contract (we assume the European Options model in which option contracts are executed on expiration date). Use the Prediction Start Date under the Model Parameters 
+There are two models for options. Here is a description of the parameters that are relevant to both: 
+
+We use historical stock data to estimate historical volatility of the stock. Use the **General Start Date** to indicate the start date of the historical data. Use the **General End Date **to indicate the expiration date of the contract (we assume the European Options model in which option contracts are executed on expiration date). Use the P**rediction Start Date** under the Model Parameters to indicate the what is both the Start Date of the options contract and the End Date of the historical stock data that the model should be using for its parameters. 
+
+Chronologically, the dates should go from General Start Date < Prediction Start Date < General End Date 
 
 ##### Black-Scholes 
 
