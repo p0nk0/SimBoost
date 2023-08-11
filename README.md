@@ -10,12 +10,12 @@ _By: Sonica Prakash and Taylor Roberts_
 
 #### Options
 
-##### Black-Scholes 
+_##### Black-Scholes _
 
-##### Binomial Pricing 
+_##### Binomial Pricing _
 
 #### Stocks 
 
-##### Monte Carlo 
+_##### Monte Carlo _
 
 
