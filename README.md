@@ -12,9 +12,21 @@ The models work by using a subset of historical stock data (from the NASDAQ Fina
 
 ### Installation and Setup 
 
-Replace X with your Nasdaq API Key
-Libraries to install 
-Server setup and running the server 
+You will need to install the following libraries with the following commands for OCaml: 
+
+Owl Base: opam install owl-base
+Cohttp Async: opam install cohttp-async
+JSONAF : opan install jsonaf
+
+You will also need to install React. Within React, you will need to install the following packages using npm. 
+
+- material-ui
+- material-ui-x-date-pickers
+- material-ui-x-charts
+- day-js
+- react-router-dom
+
+Once you have the repo downloaded, change into the 'frontend' directory and use the command 'npm start' to start the application!
 
 ### Current Models 
 
