@@ -22,13 +22,27 @@ Server setup and running the server
 
 There are two models for options. Here is a description of the parameters that are relevant to both: 
 
-We use historical stock data to estimate historical volatility of the stock. Use the **General Start Date** to indicate the start date of the historical data. Use the **General End Date **to indicate the expiration date of the contract (we assume the European Options model in which option contracts are executed on expiration date). Use the P**rediction Start Date** under the Model Parameters to indicate the what is both the Start Date of the options contract and the End Date of the historical stock data that the model should be using for its parameters. 
+We use historical stock data to estimate historical volatility of the stock. Use the **General Start Date** to indicate the start date of the historical data. Use the **General End Date** to indicate the expiration date of the contract (we assume the European Options model in which option contracts are executed on expiration date). Use the **Prediction Start Date** under the Model Parameters to indicate the what is both the Start Date of the options contract and the End Date of the historical stock data that the model should be using for its parameters. 
 
-Chronologically, the dates should go from General Start Date < Prediction Start Date < General End Date 
+Chronologically, the dates should go from General Start Date < Prediction Start Date < General End Date
+
+Click on the Put or Call button under model parameters based on which contract you are expecting to purchase. Specify the Strike Price and Interest Rate for your contracts also under model parameters. 
 
 ##### Black-Scholes 
 
+Black-Scholes requires no additional parameters. Click on the Black-Scholes button after inputting all parameters (or leaving the defaults) to run the model. The stock price at expiration, the prediction contract price for your option, and the estimated PNL will be displayed as results. 
+
 ##### Binomial Pricing 
+
+Binomial Pricing requires an addition parameter, Number of Time Steps under model parameters that dictates how big the tree should be in use for the binomial pricing calculation. Click on the Binomial Pricer button after inputting all parameters (or leaving the defaults) to run the model. The stock price at expiration, the prediction contract price for your option, and the estimated PNL will be displayed as results. 
+
+##### Calculating PNL 
+
+All contracts are assumed to be for 100 shares of a specific stock. 
+
+For a Call option, the PNL is calculated by (Selling 100 shares at Stock Price @ Expiration) - (Contract Price) - (Buying 100 shares at Strike Price 100 for shares). 
+
+For a Put option, the PNL is calculated by (Buying 100 shares at Stock Price @ Expiration) - (Contract Price) - (Selling 100 shares at Strike Price for 100 shares). 
 
 #### Stocks 
 
