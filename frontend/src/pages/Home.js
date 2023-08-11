@@ -7,6 +7,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { cyan } from '@mui/material/colors';
 
 import CircularProgress from '@mui/material/CircularProgress';
+import LinearProgress from '@mui/material/LinearProgress';
 
 import Button from '@mui/material/Button'
 import ToggleButton from '@mui/material/ToggleButton';
@@ -199,6 +200,32 @@ function MakeDateRange({ start, setStart, end, setEnd }) {
     )
 }
 
+function MakeTable({ accuracy, expiration, contract, pnl }) {
+    return (
+        <TableContainer>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Percent Error (MAPE)</TableCell>
+                        <TableCell>Stock Price at Expiration</TableCell>
+                        <TableCell>Recomended Contract Price</TableCell>
+                        <TableCell>Predicted Profit/Loss</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    <TableRow>
+                        <TableCell align="center">{accuracy}%</TableCell>
+                        <TableCell align="center">${expiration}</TableCell>
+                        <TableCell align="center">${contract}</TableCell>
+                        <TableCell align="center">${pnl}</TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </TableContainer>
+    )
+}
+
+
 export default function Home() {
 
     // arrays to hold time-series data
@@ -307,7 +334,7 @@ export default function Home() {
     return (
         <div className="App">
             <header className="App-header">
-                <h1>SIMBOOOOST 🚀🚀🚀🚀🚀🚀 </h1>
+                <h1>🚀 SimBoost 🚀</h1>
                 <ThemeProvider theme={theme}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <div className="Help_button">
@@ -378,18 +405,8 @@ export default function Home() {
 
                         <h3>Model Results</h3>
 
-                        <TableContainer>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Dessert (100g serving)</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                            </Table>
-                        </TableContainer>
+                        {resultsLoading ? <LinearProgress /> : <MakeTable accuracy={accuracy} expiration={expiration} contract={contract} pnl={pnl} />}
 
-                        <p>percent error (MAPE): {accuracy}%</p>
-                        <p>price at expiration ${expiration}, recommended price ${contract}, pnl ${pnl}</p>
                     </LocalizationProvider>
                 </ThemeProvider>
 
