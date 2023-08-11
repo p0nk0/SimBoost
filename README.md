@@ -1,2 +1,5 @@
 # stock-price-predictor
-JSIP final project
+**SimBoost - Stock and Options Pricer **
+_By: Sonica Prakash and Taylor Roberts_
+
+
