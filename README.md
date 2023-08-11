@@ -46,6 +46,12 @@ For a Put option, the PNL is calculated by (Buying 100 shares at Stock Price @ E
 
 #### Stocks 
 
+There is one model for stocks, with parameters described below. 
+
 ##### Monte Carlo
+
+Volatility is calculated using historical stock data for your chosen stock from General Start Date to Prediction Start Date. Daily stock price predictions are then made (and shown on the graph) from Prediction Start Date to General End Date. The displayed prediction of stock prices is the average of 10,000 simulations of Monte Carlo. 
+
+The result displayed is the Mean Absolute Percentage Error (MAPE) between the true stock prices and the predicted stock prices. 
 
 
